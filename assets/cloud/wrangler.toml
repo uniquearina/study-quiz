@@ -1,0 +1,13 @@
+# Облачная версия тренажёра (необязательно): Cloudflare Pages + функция прогресса. Инструкция — docs/CLOUD.md.
+# Скопируй папку cloud/ в проект рядом с trainer/ и замени все <…>.
+name = "<имя-проекта>"                  # сайт будет https://<имя-проекта>.pages.dev
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "../trainer"
+
+[[kv_namespaces]]
+binding = "progress"
+id = "<id KV-хранилища>"                # npx wrangler kv namespace create progress
+
+[vars]
+TEAM = "<команда>"                      # команда Zero Trust: <команда>.cloudflareaccess.com
+AUD = "<Application Audience tag>"      # из настроек приложения Access; можно несколько через запятую
