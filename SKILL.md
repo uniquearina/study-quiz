@@ -19,6 +19,7 @@ Skill files (paths relative to the folder containing this SKILL.md; usually `~/.
 |---|---|
 | `extract_html.py` | text of saved HTML pages → `notes/*.md`, checks that the page was saved completely |
 | `sync.py [--lock]` | what changed in `notes/` compared to the trainer: NEW / CHANGED / REMOVED |
+| `hub.py [folder]` | a hub page for several subjects: `<folder>/index.html` with a card per `*/trainer/` |
 | `crop_image.py grid / crop / pdf / dupes` | images from photos, scans and PDF → `trainer/img/`: coordinate grid, crop with labels masked by numbers, PDF page → image, duplicate photos |
 | `add_topic.js part.js [--replace] [--dry]` | insert a new lesson or replace a rewritten one |
 | `remove_topic.js <lesson id> [--dry]` | remove a lesson everywhere (everything removed goes to `archive/removed/`) |
@@ -37,13 +38,23 @@ Talk to the user in their language. Write notes, questions, concepts and cheat s
 
 ## 1. Identify the project
 
-- **The folder already has `trainer/index.html`** — this is an existing trainer: add to it. If the folder has a `CLAUDE.md` or its own rules (e.g. `RULES.md`), read them: the user's rules take precedence over the skill's rules.
+- **The folder has subfolders with `<subject>/trainer/index.html`** — this is a workspace with several subjects (see "Several subjects" below). New material: sort it by subject and work inside each subject folder; material of a new subject → a new subfolder.
+- **The folder already has `trainer/index.html`** — this is an existing trainer: add to it. If new material clearly belongs to a different subject than the course, don't mix it in silently: ask whether to put it into a separate trainer next to this one. If the folder has a `CLAUDE.md` or its own rules (e.g. `RULES.md`), read them: the user's rules take precedence over the skill's rules.
 - **No trainer** — create a project:
   1. `cp -r <skill>/assets/trainer ./trainer`, then copy the sample in the language of the material: `cp <skill>/examples/<en|ru>/*.js ./trainer/` (for another language take `en`).
   2. In `trainer/config.js` set `lang` (`"en"` or `"ru"` — the language of the material; the interface supports only these two, for any other take `"en"`), `title` (name in the header), `subtitle` (large heading, usually the course name) and a **unique** `key`, e.g. `trainer-biology-2026`. All pages opened via `file://` share one browser storage: without a unique key, progress of different trainers gets mixed.
   3. Create folders `sources/` (source files as is) and `notes/` (clean text per lesson).
   4. Keep the sample (`quiz-data-example.js`, `study-example.js`) as a format reference while writing the first topic, then delete the files and their `<script>` lines from `index.html`.
   5. Suggest the user create a `CLAUDE.md` in the project folder: briefly what the course is and which id prefixes are taken — this speeds up future sessions.
+
+### Several subjects
+
+One trainer = one subject (course): its own Today session (~25 questions a day), progress, map and cheat sheets. When the material clearly spans unrelated subjects (anatomy, history, chemistry…), **stop before writing anything** and:
+1. Show one table: subject → which files → what's unclear. Files you can't assign — ask about them.
+2. Ask how to set it up. Recommend separate trainers; one trainer with subjects as topics is fine when the subjects are small and the user wants a single Today session. Don't decide yourself: "biology" and "anatomy" are one subject for some people and two for others, and moving progress later is painful.
+3. Separate trainers: in the current folder create `<Subject>/` for each (a clear name in the user's language), move its sources to `<Subject>/sources/`, then build each trainer inside its folder by steps 1–6, one after another (scripts are run from the subject folder). Every trainer gets its own `key` (`trainer-<subject>-<year>`). With 3+ subjects, one helper (Agent) per subject.
+4. Build the hub: `python3 $S/hub.py` in the parent folder → `index.html` with a card per subject (lessons, questions, how many for today, streak). Rerun it after any subject or lesson is added. It warns if two trainers share a `key` — fix that at once.
+5. Later "here are new lessons" in the parent folder: sort the new files by subject yourself, show the sorting in one line per file, then update each subject's trainer and rerun `hub.py`.
 
 ## 2. Material → text in `notes/<lesson>.md`
 

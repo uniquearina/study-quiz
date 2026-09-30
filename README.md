@@ -63,6 +63,27 @@ After that:
 - **"this question is dumb"**, **"the hint gives the answer away"** — fixes it and records a rule for all topics from now on;
 - **"quiz me on topic X"** — an oral exam: 8–10 "explain in your own words" questions, a summary, and a file that brings what you missed back into Today.
 
+### Several subjects
+
+One trainer is one subject: its own Today session (~25 questions a day), progress, map and cheat sheets. For several subjects, use one parent folder:
+
+1. Create a folder, e.g. `~/Study/`, and open Claude Code in it.
+2. Drop in the material for all subjects at once, mixed is fine, and write "make trainers from these materials".
+3. Claude shows which files it assigned to which subject, asks about unclear ones and offers a choice: a separate trainer per subject or one shared trainer with subjects as topics. For big subjects or exams at different times, pick separate trainers.
+4. You get:
+   ```
+   ~/Study/
+     index.html   ← hub: all subjects, how many for today, streak
+     Anatomy/     sources/ notes/ trainer/
+     History/     sources/ notes/ trainer/
+     Chemistry/   sources/ notes/ trainer/
+   ```
+5. Bookmark `~/Study/index.html` — every subject opens from there.
+
+After that, open Claude Code in `~/Study/` and write "here are new lessons", even if they are for different subjects: Claude sorts them into the right trainers and updates the hub. Working inside one subject folder, e.g. `~/Study/Chemistry/`, works too.
+
+The "for today" counters on the hub show in Chrome and Edge. In other browsers the hub just links to the trainers; progress is still shown inside each one.
+
 ### What to put where
 
 Put your sources in `sources/` inside the course folder. You can also just attach files in the chat and Claude will move them there.
@@ -153,6 +174,7 @@ python3 $S/terms.py                      # did every term from the notes make it
 python3 $S/e2e.py                        # test: the whole question bank in headless Chrome
 python3 $S/e2e_study.py                  # test: Today, cheat sheets, flashcards, map
 python3 $S/crop_image.py grid|crop|pdf|dupes  # pictures from photos and PDFs → trainer/img/
+python3 $S/hub.py                        # hub page for several subjects (run in the parent folder)
 python3 $S/screens.py                    # screenshots
 node    $S/add_topic.js part.js          # insert a lesson; --replace to replace
 node    $S/remove_topic.js <lesson id>   # remove a lesson (to archive/removed/)
