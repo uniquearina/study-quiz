@@ -78,7 +78,7 @@ h2.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; colo
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding: 12px; border-radius: 14px; background: var(--bg2); }
 .chip { border: 1.5px solid var(--line); background: var(--card); border-radius: 10px; padding: 7px 11px; font-size: 14px; font-weight: 600; text-align: left; box-shadow: var(--press); }
 .chip.used { opacity: .3; box-shadow: none; }
-.chips:empty::after { content: "Все фишки расставлены"; color: var(--muted); font-size: 13px; }
+.chips:empty::after { content: attr(data-empty); color: var(--muted); font-size: 13px; }
 .ttask td.slot, .fslot { cursor: pointer; }
 .ttask td.slot { background: color-mix(in srgb, var(--pick) 7%, transparent); border: 1.5px dashed color-mix(in srgb, var(--pick) 45%, var(--line)); min-width: 90px; }
 .fslot { display: flex; flex-direction: column; justify-content: center; gap: 3px; min-height: 52px; padding: 8px 10px; border-radius: 12px; text-align: center; font-size: 14px; font-weight: 600;
@@ -289,6 +289,7 @@ h2.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; colo
 <body>
 <div class="wrap" id="app"></div>
 <script src="config.js"></script>
+<script src="i18n.js"></script>
 <!-- QUIZ-DATA: сюда подключаются trainer/quiz-data-<тема>.js -->
 <script src="quiz-data-example.js"></script>
 <!-- STUDY-DATA: сюда подключаются trainer/study-<тема>.js (до study-links.js) -->
@@ -309,10 +310,10 @@ const D = {
   questions: PARTS.flatMap(p => p.questions)
 };
 const LEVEL = { truefalse: 1, mcq: 1, match: 1, sort: 2, table: 2, frame: 2, order: 2, cloze: 3, list: 3, recall: 3 }; // см. docs/FORMAT.md
-const LEVEL_NAME = { 1: "Разминка", 2: "Практика", 3: "Вспомни" };
-const TYPE_HINT = { mcq: null, truefalse: "Верно или неверно?", match: "Нажми слева, затем справа — чтобы соединить", sort: "Отнеси каждый пункт к группе",
-  order: "Перетащи или двигай стрелками",
-  table: "Нажми на пустую клетку, потом на подходящую фишку", frame: "Нажми на пустое место схемы, потом на подходящее название", cloze: "Впиши пропущенное", list: "Запиши по пункту в поле, потом сравни с эталоном и оцени себя", recall: "Сформулируй ответ — можно в уме или записать" };
+const { t, p: pl } = window.I18N; // тексты интерфейса — i18n.js
+const LEVEL_NAME = { 1: t("level.1"), 2: t("level.2"), 3: t("level.3") };
+const TYPE_HINT = { mcq: null };
+["truefalse", "match", "sort", "order", "table", "frame", "cloze", "list", "recall"].forEach(k => TYPE_HINT[k] = t("hint." + k));
 const Q = D.questions.map(q => ({ ...q, level: LEVEL[q.type] }));
 const byId = Object.fromEntries(Q.map(q => [q.id, q]));
 const topicOf = id => D.topics.find(t => t.id === id);
@@ -321,7 +322,7 @@ const $app = document.getElementById("app");
 // ── storage ────────────────────────────────────────────────
 const CFG = window.TRAINER || {};
 const KEY = CFG.key || "study-trainer";
-document.title = CFG.title || document.title;
+document.title = CFG.title || t("app.title");
 let S = { q: {}, sessions: [], ui: {} };
 try { const raw = JSON.parse(localStorage.getItem(KEY) || "null"); if (raw) S = Object.assign(S, raw); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} window.SYNC?.dirty(); };
@@ -344,8 +345,15 @@ const imgs = v => (Array.isArray(v) ? v : v ? [v] : []);
 const tableHtml = t => !t ? "" : `<div class="tblwrap"><table class="tbl"><thead><tr>${t.head.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead>
   <tbody>${t.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 const visuals = q => tableHtml(q.explainTable) + imgs(q.explainImg).map(src => `<img class="zoomable" src="img/${src}" alt="">`).join("");
+// Старый вызов plural(n, "вопрос", "вопроса", "вопросов") — только для русских форм; в коде тренажёра — pl(n, "pl.question").
 const plural = (n, a, b, c) => { const m = n % 10, k = n % 100; return m === 1 && k !== 11 ? a : m >= 2 && m <= 4 && (k < 10 || k >= 20) ? b : c; };
-const fmtDate = t => new Date(t).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const fmtDate = ts => new Date(ts).toLocaleString(I18N.locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+// Суффиксы названий повторных тестов — по всем языкам, чтобы старые (и сохранённые на другом языке) названия не копили суффиксы.
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const SUF_AGAIN = I18N.all("session.again").map(reEsc).join("|"), SUF_MIST = I18N.all("session.mistakes").map(reEsc).join("|");
+const stripAgain = title => title.replace(new RegExp(` · (${SUF_AGAIN}).*$`), "");
+const stripRetry = title => title.replace(new RegExp(` · (${SUF_AGAIN}|${SUF_MIST}).*$`), "");
+const withMistakes = title => stripRetry(title) + " · " + t("session.mistakes");
 document.addEventListener("click", e => {
   const z = e.target.closest(".zoomable, .qimgs img"); if (!z) return;
   const lb = h(`<div class="lb"><img src="${z.getAttribute("src")}" alt=""></div>`); lb.onclick = () => lb.remove(); document.body.append(lb);
@@ -457,20 +465,20 @@ function startToday(extra = 0) {
   const o = openToday(); if (o && !extra) return run(o);
   const p = todayPlan(Date.now(), extra);
   if (!p.ids.length) return !extra && todayCardsLeft().length ? todayCardsRun() : home();
-  const d = new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
-  run(newSession(p.ids, { title: (extra ? "Ещё новые" : "На сегодня") + " · " + d, mode: "today" }));
+  const d = new Date().toLocaleDateString(I18N.locale, { day: "numeric", month: "short" });
+  run(newSession(p.ids, { title: t(extra ? "session.moreNew" : "session.today") + " · " + d, mode: "today" }));
 }
 const todayCardsLeft = () => window.STUDY_UI ? STUDY_UI.todayCards() : [];
-const todayCardsRun = () => STUDY_UI.cards(todayCardsLeft(), { title: "Карточки на сегодня", ordered: true, back: home });
+const todayCardsRun = () => STUDY_UI.cards(todayCardsLeft(), { title: t("session.todayCards"), ordered: true, back: home });
 
 const answerOf = q => ({
-    recall: () => q.back, truefalse: () => (q.answer ? "Верно. " : "Неверно. ") + (q.explanation || ""),
+    recall: () => q.back, truefalse: () => t(q.answer ? "check.trueAnswer" : "check.falseAnswer") + (q.explanation || ""),
     mcq: () => q.correct.map(k => q.options[k]).join("; "),
     match: () => q.pairs.map(p => (typeof p[0] === "object" ? "🖼" : p[0]) + " — " + p[1]).join("; "),
     order: () => q.items.join(" → "), sort: () => Object.entries(q.groups).map(([g, a]) => g + ": " + a.join(", ")).join(" · "),
     list: () => q.answers.map(a => a.label).join("; "),
     table: () => q.blanks.map(k => { const [r, c] = k.split("-").map(Number); return `${q.rows[r][0]}${q.head[c] ? " · " + q.head[c] : ""}: ${q.rows[r][c]}`; }).join("; "),
-    frame: () => q.slots.map(x => x.label).join(q.layout === "grid" ? "; " : " → "), cloze: () => q.q.replace("___", "«" + q.answers[0] + "»")
+    frame: () => q.slots.map(x => x.label).join(q.layout === "grid" ? "; " : " → "), cloze: () => q.q.replace("___", t("check.clozeFill", { a: q.answers[0] }))
   }[q.type])();
 
 // ── HOME ───────────────────────────────────────────────────
@@ -492,60 +500,60 @@ function home() {
   const open = unfinished(tOpen);
   const tCards = window.STUDY_UI ? STUDY_UI.todayCards().length : 0;
   const tQ = tOpen ? tOpen.qids.length - Object.keys(tOpen.answers).length : plan.ids.length, tLeft = tQ + tCards, mins = Math.max(1, Math.round((tQ * 25 + tCards * 8) / 60));
-  const todayHtml = tLeft ? `<div class="today"><div><div class="lbl">На сегодня</div>
-      <b class="big">${tQ ? `${tQ} ${plural(tQ, "вопрос", "вопроса", "вопросов")}` : ""}${tQ && tCards ? " + " : ""}${tCards ? `${tCards} ${plural(tCards, "карточка", "карточки", "карточек")}` : ""} · ~${mins} мин</b>
-      <div class="small muted">${tOpen ? `начато: ${Object.keys(tOpen.answers).length} из ${tOpen.qids.length}` : [plan.due.length && `${plan.due.length} повторить`, plan.fresh.length && `${plan.fresh.length} ${plural(plan.fresh.length, "новый", "новых", "новых")}`, tCards && "карточки в конце"].filter(Boolean).join(" · ")}</div></div>
-      <div class="acts"><button class="btn primary big" id="today">${tOpen ? "Продолжить" : "Начать"}</button></div></div>`
-    : `<div class="today done"><div><div class="lbl">✓ На сегодня всё</div>
-      <b class="big">Завтра: ~${plan.tmr.total} ${plural(plan.tmr.total, "вопрос", "вопроса", "вопросов")}</b>
-      <div class="small muted">${[plan.tmr.due && `${plan.tmr.due} повторить`, plan.tmr.fresh && `${plan.tmr.fresh} ${plural(plan.tmr.fresh, "новый", "новых", "новых")}`].filter(Boolean).join(" + ") || "нечего повторять"}${plan.tomorrow > plan.tmr.due ? ` · в очереди на повтор ${plan.tomorrow}, разойдётся на несколько дней` : ""}</div></div>
-      ${plan.newTotal ? `<div class="acts"><button class="btn" id="more">Ещё 10 новых</button></div>` : ""}</div>`;
+  const todayHtml = tLeft ? `<div class="today"><div><div class="lbl">${t("home.today")}</div>
+      <b class="big">${tQ ? `${tQ} ${pl(tQ, "pl.question")}` : ""}${tQ && tCards ? " + " : ""}${tCards ? `${tCards} ${pl(tCards, "pl.card")}` : ""} · ${t("home.minutes", { n: mins })}</b>
+      <div class="small muted">${tOpen ? t("home.started", { a: Object.keys(tOpen.answers).length, b: tOpen.qids.length }) : [plan.due.length && t("home.toReview", { n: plan.due.length }), plan.fresh.length && `${plan.fresh.length} ${pl(plan.fresh.length, "pl.new")}`, tCards && t("home.cardsAtEnd")].filter(Boolean).join(" · ")}</div></div>
+      <div class="acts"><button class="btn primary big" id="today">${tOpen ? t("app.continue") : t("home.start")}</button></div></div>`
+    : `<div class="today done"><div><div class="lbl">${t("home.todayDone")}</div>
+      <b class="big">${t("home.tomorrow", { n: plan.tmr.total, q: pl(plan.tmr.total, "pl.question") })}</b>
+      <div class="small muted">${[plan.tmr.due && t("home.toReview", { n: plan.tmr.due }), plan.tmr.fresh && `${plan.tmr.fresh} ${pl(plan.tmr.fresh, "pl.new")}`].filter(Boolean).join(" + ") || t("home.nothingToReview")}${plan.tomorrow > plan.tmr.due ? t("home.queue", { n: plan.tomorrow }) : ""}</div></div>
+      ${plan.newTotal ? `<div class="acts"><button class="btn" id="more">${t("home.more10")}</button></div>` : ""}</div>`;
   const pct = total ? learned / total : 0, C = 2 * Math.PI * 42;
   const bar = qs => { const ok = qs.filter(q => status(q.id) === "ok").length, bad = qs.filter(q => status(q.id) === "bad").length;
     return { ok, bad, html: `<div class="mbar"><i class="g" style="width:${ok / (qs.length || 1) * 100}%"></i><i class="r" style="width:${bad / (qs.length || 1) * 100}%"></i></div>
-      <div class="tstat"><span>${ok}/${qs.length} выучено</span>${bad ? `<span style="color:var(--bad)">${bad} с ошибками</span>` : ""}</div>` }; };
+      <div class="tstat"><span>${t("app.learnedOf", { ok, n: qs.length })}</span>${bad ? `<span style="color:var(--bad)">${t("app.withMistakes", { n: bad })}</span>` : ""}</div>` }; };
 
   $app.innerHTML = "";
   const el = h(`<div>
-    <div class="top"><div class="brand"><div class="logo">✦</div>${esc(CFG.title || "Тренажёр")}</div>
-      <button class="iconbtn" id="theme" title="Светлая / тёмная тема">◐</button></div>
+    <div class="top"><div class="brand"><div class="logo">✦</div>${esc(CFG.title || t("app.title"))}</div>
+      <button class="iconbtn" id="theme" title="${t("app.theme")}">◐</button></div>
     <div class="hero">
       <svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--bg2)" stroke-width="12"/>
         ${pct > 0 ? "" : "<!--"}<circle cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round"
           stroke-dasharray="${C * pct} ${C}" transform="rotate(-90 50 50)"/>${pct > 0 ? "" : "-->"}
         <text x="50" y="56" text-anchor="middle" font-size="22" font-weight="800" fill="var(--ink)" font-family="inherit">${Math.round(pct * 100)}%</text></svg>
-      <div><h1>${esc(CFG.subtitle || "Мой курс")}</h1><div class="muted small">${D.groups.length} ${plural(D.groups.length, "тема", "темы", "тем")} · ${D.topics.length} ${plural(D.topics.length, "урок", "урока", "уроков")} · ${total} ${plural(total, "вопрос", "вопроса", "вопросов")}</div>
-        <div class="kpis"><div class="kpi"><b>${learned}</b><span>выучено</span></div><div class="kpi"><b>${wrong}</b><span>с ошибками</span></div>
-          <div class="kpi"><b>${total - learned - wrong}</b><span>новых</span></div>
-          <div class="kpi"><b>${streak ? "🔥 " + streak : "0"}</b><span>${plural(streak, "день", "дня", "дней")} подряд</span></div></div>
+      <div><h1>${esc(CFG.subtitle || t("app.subtitle"))}</h1><div class="muted small">${D.groups.length} ${pl(D.groups.length, "pl.topic")} · ${D.topics.length} ${pl(D.topics.length, "pl.lesson")} · ${total} ${pl(total, "pl.question")}</div>
+        <div class="kpis"><div class="kpi"><b>${learned}</b><span>${t("home.kpiLearned")}</span></div><div class="kpi"><b>${wrong}</b><span>${t("home.kpiMistakes")}</span></div>
+          <div class="kpi"><b>${total - learned - wrong}</b><span>${t("home.kpiNew")}</span></div>
+          <div class="kpi"><b>${streak ? "🔥 " + streak : "0"}</b><span>${pl(streak, "pl.streak")}</span></div></div>
       </div>
     </div>
     ${todayHtml}
-    ${open ? `<div class="resume"><div><b>Незаконченный тест</b><div class="small muted">${esc(open.title)} · ${Object.keys(open.answers).length} из ${open.qids.length}</div></div>
-      <button class="btn primary" id="resume">Продолжить</button></div>` : ""}
+    ${open ? `<div class="resume"><div><b>${t("home.unfinished")}</b><div class="small muted">${esc(open.title)} · ${t("app.of", { a: Object.keys(open.answers).length, b: open.qids.length })}</div></div>
+      <button class="btn primary" id="resume">${t("app.continue")}</button></div>` : ""}
 
-    <div class="sechead"><h2 class="sec">Уроки</h2>${window.STUDY_UI && STUDY_UI.has() ? `<button class="chipbtn" id="t-map">🗺 Карта курса</button>` : ""}</div>
+    <div class="sechead"><h2 class="sec">${t("home.lessons")}</h2>${window.STUDY_UI && STUDY_UI.has() ? `<button class="chipbtn" id="t-map">${t("home.map")}</button>` : ""}</div>
     <div class="groups">${D.groups.map((g, gi) => {
       const ts = D.topics.filter(t => t.group === g.id), gb = bar(Q.filter(q => ts.some(t => t.id === q.topic)));
       const isOpen = ui.open.includes(g.id);
       return `<div class="group">
         <div class="ghead">
-          <button class="gtitle" data-gopen="${g.id}"><span class="num">Тема ${gi + 1} · ${ts.length} ${plural(ts.length, "урок", "урока", "уроков")}</span>
+          <button class="gtitle" data-gopen="${g.id}"><span class="num">${t("home.topicN", { n: gi + 1 })} · ${ts.length} ${pl(ts.length, "pl.lesson")}</span>
             <b>${esc(g.title)}</b>${gb.html}</button>
-          <button class="iconbtn chev ${isOpen ? "open" : ""}" data-gopen="${g.id}" title="${isOpen ? "Свернуть" : "Показать уроки"}">⌄</button>
+          <button class="iconbtn chev ${isOpen ? "open" : ""}" data-gopen="${g.id}" title="${isOpen ? t("home.collapse") : t("home.expand")}">⌄</button>
         </div>
-        ${isOpen ? `<div class="topics">${ts.map((t, i) => `<button class="topic" data-lesson="${t.id}" title="${esc(t.lesson || t.title)}">
-            <div class="num">Урок ${i + 1}</div><b>${esc(t.title)}</b>${bar(Q.filter(q => q.topic === t.id)).html}</button>`).join("")}</div>` : ""}
+        ${isOpen ? `<div class="topics">${ts.map((tp, i) => `<button class="topic" data-lesson="${tp.id}" title="${esc(tp.lesson || tp.title)}">
+            <div class="num">${t("home.lessonN", { n: i + 1 })}</div><b>${esc(tp.title)}</b>${bar(Q.filter(q => q.topic === tp.id)).html}</button>`).join("")}</div>` : ""}
       </div>`;
     }).join("")}</div>
-    <p class="tiny muted" style="margin:8px 2px 0">Урок открывается шпаргалкой — оттуда карточки и тест по уроку.</p>
+    <p class="tiny muted" style="margin:8px 2px 0">${t("home.lessonNote")}</p>
 
-    <button class="custom" id="custom"><span class="ic">🎯</span><span><b>Свой тест</b>
-      <span>Смешать любые уроки и темы · только ошибки или новое · карточки · история прохождений</span></span><span class="go">→</span></button>
+    <button class="custom" id="custom"><span class="ic">🎯</span><span><b>${t("home.custom")}</b>
+      <span>${t("home.customDesc")}</span></span><span class="go">→</span></button>
 
     <div style="margin-top:22px;display:flex;gap:6px;flex-wrap:wrap">
-      <button class="link" id="export">Сохранить прогресс в файл</button><button class="link" id="import">Загрузить из файла</button>
-      <button class="link" id="reset">Сбросить всё</button><input type="file" id="file" accept=".json" hidden>
+      <button class="link" id="export">${t("home.export")}</button><button class="link" id="import">${t("home.import")}</button>
+      <button class="link" id="reset">${t("home.reset")}</button><input type="file" id="file" accept=".json" hidden>
       <span class="tiny muted" id="sync-st" style="align-self:center">${window.SYNC ? SYNC.text() : ""}</span></div>
   </div>`);
   $app.append(el);
@@ -575,11 +583,11 @@ function home() {
         [["q", S.q], ["cards", S.cards]].forEach(([k, store]) => (d.reset?.[k] || []).forEach(id => {
           if (k === "q" && !byId[id]) return; if (k === "cards" && window.STUDY_UI && !STUDY_UI.ST.concepts[id]) return;
           const r = store[id] || { n: 0, ok: 0, first: now }; r.box = 1; r.due = d0; r.last = 0; r.at = r.at || now; r.mod = now; store[id] = r; n++; }));
-        refresh(); alert(`На повтор вернулось: ${n}`); return; }
+        refresh(); alert(t("home.mergeDone", { n })); return; }
       if (!d.q || !d.sessions) throw 0; S = Object.assign({ q: {}, sessions: [], ui: {}, cards: {}, days: {} }, d); Object.values(S.q).forEach(r => SRS.migrate(r, Date.now())); refresh(); }
-    catch (e) { alert("Не получилось прочитать файл прогресса"); }
+    catch (e) { alert(t("home.importFail")); }
   };
-  el.querySelector("#reset").onclick = () => { if (confirm("Стереть весь прогресс и историю?")) { S = { q: {}, sessions: [], ui: { theme: S.ui.theme }, cards: {}, days: {}, wipedAt: Date.now() }; refresh(); } };
+  el.querySelector("#reset").onclick = () => { if (confirm(t("home.resetConfirm"))) { S = { q: {}, sessions: [], ui: { theme: S.ui.theme }, cards: {}, days: {}, wipedAt: Date.now() }; refresh(); } };
 }
 
 // ── СВОЙ ТЕСТ ─────────────────────────────────────────────
@@ -592,11 +600,11 @@ function custom() {
   const nCards = window.STUDY_UI ? STUDY_UI.ST.list.filter(c => ui.topics.includes(c.topic)).length : 0;
   $app.innerHTML = "";
   const el = h(`<div>
-    <div class="top"><div class="brand"><button class="iconbtn" id="x" title="На главную">←</button><div>Свой тест</div></div>
-      <button class="iconbtn" id="theme" title="Светлая / тёмная тема">◐</button></div>
+    <div class="top"><div class="brand"><button class="iconbtn" id="x" title="${t("app.home")}">←</button><div>${t("home.custom")}</div></div>
+      <button class="iconbtn" id="theme" title="${t("app.theme")}">◐</button></div>
 
-    <div class="sechead" style="margin-top:0"><h2 class="sec" style="margin-top:0">1. Уроки — можно смешивать</h2>
-      <button class="link" id="selall">${ui.topics.length === D.topics.length ? "Снять всё" : "Выбрать всё"}</button></div>
+    <div class="sechead" style="margin-top:0"><h2 class="sec" style="margin-top:0">${t("custom.step1")}</h2>
+      <button class="link" id="selall" data-all="${ui.topics.length === D.topics.length ? 1 : 0}">${ui.topics.length === D.topics.length ? t("custom.clearAll") : t("custom.selectAll")}</button></div>
     <div class="groups">${D.groups.map((g, gi) => {
       const ts = D.topics.filter(t => t.group === g.id);
       const nSel = ts.filter(t => ui.topics.includes(t.id)).length;
@@ -604,46 +612,46 @@ function custom() {
       const isOpen = ui.copen.includes(g.id);
       return `<div class="group ${state !== "none" ? "on" : ""}">
         <div class="ghead">
-          <button class="gcheck ${state}" data-gsel="${g.id}" title="Выбрать всю тему">${state === "all" ? "✓" : state === "some" ? "–" : ""}</button>
-          <button class="gtitle" data-gopen="${g.id}"><span class="num">Тема ${gi + 1}${state === "some" ? ` · выбрано ${nSel} из ${ts.length}` : state === "all" ? " · вся тема" : ""}</span>
+          <button class="gcheck ${state}" data-gsel="${g.id}" title="${t("custom.selectTopic")}">${state === "all" ? "✓" : state === "some" ? "–" : ""}</button>
+          <button class="gtitle" data-gopen="${g.id}"><span class="num">${t("home.topicN", { n: gi + 1 })}${state === "some" ? t("custom.selected", { a: nSel, b: ts.length }) : state === "all" ? t("custom.wholeTopic") : ""}</span>
             <b style="margin-bottom:2px">${esc(g.title)}</b></button>
           <button class="iconbtn chev ${isOpen ? "open" : ""}" data-gopen="${g.id}">⌄</button>
         </div>
-        ${isOpen ? `<div class="topics">${ts.map((t, i) => { const on = ui.topics.includes(t.id), tq = Q.filter(q => q.topic === t.id), bad = tq.filter(q => status(q.id) === "bad").length;
-          return `<button class="topic ${on ? "on" : "off"}" data-topic="${t.id}" title="${esc(t.lesson || t.title)}"><span class="check">✓</span>
-            <div class="num">Урок ${i + 1}</div><b style="margin-bottom:4px">${esc(t.title)}</b>
-            <div class="tstat" style="margin-top:0"><span>${tq.length} ${plural(tq.length, "вопрос", "вопроса", "вопросов")}</span>${bad ? `<span style="color:var(--bad)">${bad} с ошибками</span>` : ""}</div></button>`; }).join("")}</div>` : ""}
+        ${isOpen ? `<div class="topics">${ts.map((tp, i) => { const on = ui.topics.includes(tp.id), tq = Q.filter(q => q.topic === tp.id), bad = tq.filter(q => status(q.id) === "bad").length;
+          return `<button class="topic ${on ? "on" : "off"}" data-topic="${tp.id}" title="${esc(tp.lesson || tp.title)}"><span class="check">✓</span>
+            <div class="num">${t("home.lessonN", { n: i + 1 })}</div><b style="margin-bottom:4px">${esc(tp.title)}</b>
+            <div class="tstat" style="margin-top:0"><span>${tq.length} ${pl(tq.length, "pl.question")}</span>${bad ? `<span style="color:var(--bad)">${t("app.withMistakes", { n: bad })}</span>` : ""}</div></button>`; }).join("")}</div>` : ""}
       </div>`;
     }).join("")}</div>
 
-    <h2 class="sec">2. Что проходим</h2>
-    <div class="seg" id="filter">${[["all", "Всё"], ["new", "Новое"], ["bad", "Ошибки"]].map(([k, v]) =>
-      `<button data-f="${k}" class="${ui.filter === k ? "on" : ""}">${v}<small>${pool(k).length} ${plural(pool(k).length, "вопрос", "вопроса", "вопросов")}</small></button>`).join("")}</div>
+    <h2 class="sec">${t("custom.step2")}</h2>
+    <div class="seg" id="filter">${[["all", t("custom.fAll")], ["new", t("custom.fNew")], ["bad", t("custom.fBad")]].map(([k, v]) =>
+      `<button data-f="${k}" class="${ui.filter === k ? "on" : ""}">${v}<small>${pool(k).length} ${pl(pool(k).length, "pl.question")}</small></button>`).join("")}</div>
 
-    <h2 class="sec">3. Длина теста</h2>
-    <div class="seg" id="len">${[[20, "20"], [40, "40"], [80, "80"], [0, "Все"]].map(([k, v]) =>
-      `<button data-len="${k}" class="${ui.len === k ? "on" : ""}">${v}<small>${k ? "вопросов" : "подряд"}</small></button>`).join("")}</div>
-    <p class="tiny muted" style="margin:8px 2px 0">Сначала ошибки, потом новые, потом давно повторённые — из всех микротем выбранных уроков, от лёгких к сложным.</p>
+    <h2 class="sec">${t("custom.step3")}</h2>
+    <div class="seg" id="len">${[[20, "20"], [40, "40"], [80, "80"], [0, t("custom.lenAll")]].map(([k, v]) =>
+      `<button data-len="${k}" class="${ui.len === k ? "on" : ""}">${v}<small>${k ? t("custom.lenQuestions") : t("custom.lenInRow")}</small></button>`).join("")}</div>
+    <p class="tiny muted" style="margin:8px 2px 0">${t("custom.orderNote")}</p>
 
-    <h2 class="sec">История прохождений</h2>
+    <h2 class="sec">${t("custom.history")}</h2>
     <div class="hist">${S.sessions.length ? S.sessions.slice(0, 20).map(s => {
       const n = Object.keys(s.answers).length, ok = Object.values(s.answers).filter(Boolean).length, bad = n - ok;
       const p = n ? Math.round(ok / n * 100) : 0;
       return `<div class="hrow"><div class="score ${n ? (p >= 80 ? "hi" : p < 50 ? "lo" : "") : ""}">${n ? p + "%" : "—"}</div>
-        <div><div class="t">${esc(s.title)}</div><div class="tiny muted">${fmtDate(s.at)} · ${n}/${s.qids.length} ${s.done ? "" : "· не закончен"}</div></div>
-        <div class="acts">${!s.done && n < s.qids.length ? `<button class="chipbtn" data-cont="${s.id}">Продолжить</button>` : ""}
-          <button class="chipbtn" data-again="${s.id}">Повторить</button>
-          ${bad ? `<button class="chipbtn" data-mist="${s.id}" style="color:var(--bad)">Ошибки · ${bad}</button>` : ""}</div></div>`;
-    }).join("") : `<div class="empty">Здесь будут твои прохождения — их можно повторить целиком или только ошибки.</div>`}</div>
+        <div><div class="t">${esc(s.title)}</div><div class="tiny muted">${fmtDate(s.at)} · ${n}/${s.qids.length} ${s.done ? "" : t("custom.notFinished")}</div></div>
+        <div class="acts">${!s.done && n < s.qids.length ? `<button class="chipbtn" data-cont="${s.id}">${t("app.continue")}</button>` : ""}
+          <button class="chipbtn" data-again="${s.id}">${t("custom.again")}</button>
+          ${bad ? `<button class="chipbtn" data-mist="${s.id}" style="color:var(--bad)">${t("custom.mistakesN", { n: bad })}</button>` : ""}</div></div>`;
+    }).join("") : `<div class="empty">${t("custom.historyEmpty")}</div>`}</div>
 
     <div class="startbar"><div class="in"><div class="hint" id="hint"></div>
-      ${nCards ? `<button class="btn" id="cards">Карточки · ${nCards}</button>` : ""}<button class="btn primary" id="start">Начать тест</button></div></div>
+      ${nCards ? `<button class="btn" id="cards" data-n="${nCards}">${t("app.cardsN", { n: nCards })}</button>` : ""}<button class="btn primary" id="start">${t("custom.start")}</button></div></div>
   </div>`);
   $app.append(el);
   const refresh = () => { save(); const y = scrollY; custom(); scrollTo(0, y); };
   const n = pool(ui.filter).length, take = ui.len ? Math.min(ui.len, n) : n;
-  el.querySelector("#hint").textContent = n ? `${take} ${plural(take, "вопрос", "вопроса", "вопросов")}${take < n ? ` из ${n}` : ""}` :
-    !ui.topics.length ? "Выбери хотя бы один урок" : ui.filter === "bad" ? "Ошибок нет — отлично!" : "Новых вопросов не осталось";
+  el.querySelector("#hint").textContent = n ? `${take} ${pl(take, "pl.question")}${take < n ? t("custom.ofTotal", { n }) : ""}` :
+    !ui.topics.length ? t("custom.pickLesson") : ui.filter === "bad" ? t("custom.noMistakes") : t("custom.noNew");
   el.querySelector("#start").disabled = !n;
   el.querySelector("#x").onclick = home;
   el.querySelector("#theme").onclick = themeToggle;
@@ -661,22 +669,22 @@ function custom() {
   });
   el.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { ui.filter = b.dataset.f; refresh(); });
   el.querySelectorAll("[data-len]").forEach(b => b.onclick = () => { ui.len = +b.dataset.len; refresh(); });
-  const names = () => ui.topics.length === D.topics.length ? "Все темы" : D.groups.map(g => {
+  const names = () => ui.topics.length === D.topics.length ? t("session.allTopics") : D.groups.map(g => {
     const ids = D.topics.filter(t => t.group === g.id).map(t => t.id), sel = ids.filter(id => ui.topics.includes(id));
     return !sel.length ? null : sel.length === ids.length ? g.title : sel.map(id => topicOf(id).title).join(" + ");
   }).filter(Boolean).join(" + ");
   el.querySelector("#start").onclick = () => {
-    const f = { all: "", new: " · новое", bad: " · ошибки" }[ui.filter];
+    const f = { all: "", new: " · " + t("session.filterNew"), bad: " · " + t("session.filterBad") }[ui.filter];
     run(newSession(pickSubset(pool(ui.filter).map(q => q.id), ui.len), { title: names() + f, mode: "topics" }));
   };
   el.querySelector("#cards")?.addEventListener("click", () =>
-    STUDY_UI.cards(STUDY_UI.ST.list.filter(c => ui.topics.includes(c.topic)).map(c => c.id), { title: "Карточки · " + names(), back: custom }));
+    STUDY_UI.cards(STUDY_UI.ST.list.filter(c => ui.topics.includes(c.topic)).map(c => c.id), { title: t("session.cardsOf", { title: names() }), back: custom }));
   const find = id => S.sessions.find(s => s.id === id);
   el.querySelectorAll("[data-cont]").forEach(b => b.onclick = () => run(find(b.dataset.cont)));
-  el.querySelectorAll("[data-again]").forEach(b => b.onclick = () => { const s = find(b.dataset.again); run(newSession(s.qids, { title: s.title.replace(/ · повтор.*$/, "") + " · повтор", mode: s.mode })); });
+  el.querySelectorAll("[data-again]").forEach(b => b.onclick = () => { const s = find(b.dataset.again); run(newSession(s.qids, { title: stripAgain(s.title) + " · " + t("session.again"), mode: s.mode })); });
   el.querySelectorAll("[data-mist]").forEach(b => b.onclick = () => {
     const s = find(b.dataset.mist); const ids = s.qids.filter(id => s.answers[id] === 0);
-    run(newSession(ids, { title: s.title.replace(/ · (повтор|работа над ошибками).*$/, "") + " · работа над ошибками", mode: s.mode }));
+    run(newSession(ids, { title: withMistakes(s.title), mode: s.mode }));
   });
 }
 
@@ -693,8 +701,8 @@ function run(sess) {
   const answered = () => Object.keys(sess.answers).length;
   const goNext = () => { const j = firstOpen(i + 1); j < 0 ? finish(sess) : show(j); };
 
-  const nav = () => `<div class="qtop"><button class="iconbtn" id="close" title="Выйти — прогресс сохранится">✕</button>
-      <div class="qtt"><b>${esc(sess.title)}</b><span>${answered()} из ${list.length} отвечено</span></div></div>
+  const nav = () => `<div class="qtop"><button class="iconbtn" id="close" title="${t("run.exit")}">✕</button>
+      <div class="qtt"><b>${esc(sess.title)}</b><span>${t("run.answered", { a: answered(), b: list.length })}</span></div></div>
     <div class="qnav">${list.map((q, j) => {
       const a = sess.answers[q.id];
       return `<button class="qn ${a === 1 ? "ok" : a === 0 ? "bad" : ""} ${j === i ? "cur" : ""}" data-j="${j}" title="${esc(D.subs[q.sub] || "")}">${j + 1}</button>`;
@@ -705,9 +713,9 @@ function run(sess) {
     const q = list[i], prevRes = sess.answers[q.id];
     $app.innerHTML = "";
     const el = h(`<div>${nav()}
-      ${prevRes != null ? `<div class="review ${prevRes ? "ok" : "bad"}"><div><b>${prevRes ? "✓ Ответ был верным" : "✕ Здесь была ошибка"}</b>
-        <span>Можно ответить ещё раз</span></div><div class="row">
-        <button class="chipbtn" id="showex">Разбор</button>${firstOpen() >= 0 ? `<button class="chipbtn" id="back">К текущему →</button>` : ""}</div>
+      ${prevRes != null ? `<div class="review ${prevRes ? "ok" : "bad"}"><div><b>${prevRes ? t("run.wasRight") : t("run.wasWrong")}</b>
+        <span>${t("run.answerAgain")}</span></div><div class="row">
+        <button class="chipbtn" id="showex">${t("run.review")}</button>${firstOpen() >= 0 ? `<button class="chipbtn" id="back">${t("run.toCurrent")}</button>` : ""}</div>
         <div class="revex" hidden></div></div>` : ""}
       <div class="qhead"><span class="badge b${q.level}">${LEVEL_NAME[q.level]}</span>
         <span class="subname">${esc(topicOf(q.topic).title)} · ${esc(D.subs[q.sub] || "")}</span></div>
@@ -719,7 +727,7 @@ function run(sess) {
     el.querySelector("#back")?.addEventListener("click", () => show(firstOpen()));
     el.querySelector("#showex")?.addEventListener("click", () => {
       const r = el.querySelector(".revex"); r.hidden = !r.hidden;
-      r.innerHTML = `<div><b>Ответ:</b> ${esc(answerOf(q))}</div>${q.explanation ? `<div style="margin-top:6px">${esc(q.explanation)}</div>` : ""}${visuals(q)}`;
+      r.innerHTML = `<div><b>${t("app.answer")}</b> ${esc(answerOf(q))}</div>${q.explanation ? `<div style="margin-top:6px">${esc(q.explanation)}</div>` : ""}${visuals(q)}`;
     });
     const body = el.querySelector(".body"), foot = el.querySelector(".foot"), fin = foot.querySelector(".in");
     // нижняя панель не должна закрывать варианты: оставляем под неё место
@@ -735,38 +743,39 @@ function run(sess) {
       sess.done = answered() >= list.length; if (sess.done) sess.finishedAt = Date.now();
       save();
       const chip = el.querySelector(`.qn[data-j="${i}"]`); chip.classList.remove("ok", "bad"); chip.classList.add(ok ? "ok" : "bad");
-      el.querySelector(".qtt span").textContent = `${answered()} из ${list.length} отвечено`;
+      el.querySelector(".qtt span").textContent = t("run.answered", { a: answered(), b: list.length });
       foot.className = "foot " + (ok ? "ok" : "bad");
       if (ok) { // верно — короткая вспышка и сразу дальше
-        fin.innerHTML = `<div class="verdict" style="margin:0"><div class="vi">✓</div><div class="vt">${["Отлично!", "Верно!", "Так держать!", "Супер!"][Math.random() * 4 | 0]}</div>
-          <button class="btn primary" id="next" style="margin-left:auto">Дальше</button></div>`;
+        const praise = t("run.praise");
+        fin.innerHTML = `<div class="verdict" style="margin:0"><div class="vi">✓</div><div class="vt">${praise[Math.random() * praise.length | 0]}</div>
+          <button class="btn primary" id="next" style="margin-left:auto">${t("run.next")}</button></div>`;
         fin.querySelector("#next").onclick = goNext;
         timer = setTimeout(goNext, 900); pad();
         return;
       }
-      const ex = [extra, q.explanation && `<div class="why"><b>Почему так</b>${esc(q.explanation)}</div>`, visuals(q),
-        window.STUDY_UI && STUDY_UI.hasCheat(q.topic) && `<button class="link" id="tocheat" style="padding-left:0">📄 Открыть шпаргалку урока</button>`].filter(Boolean).join("");
-      fin.innerHTML = `<div class="verdict"><div class="vi">✕</div><div class="vt">Не совсем</div></div>
-        ${ex ? `<div class="expl">${ex}</div>` : ""}<div class="row"><button class="btn primary big" id="next">Продолжить</button></div>`;
+      const ex = [extra, q.explanation && `<div class="why"><b>${t("run.why")}</b>${esc(q.explanation)}</div>`, visuals(q),
+        window.STUDY_UI && STUDY_UI.hasCheat(q.topic) && `<button class="link" id="tocheat" style="padding-left:0">${t("run.openCheat")}</button>`].filter(Boolean).join("");
+      fin.innerHTML = `<div class="verdict"><div class="vi">✕</div><div class="vt">${t("run.notQuite")}</div></div>
+        ${ex ? `<div class="expl">${ex}</div>` : ""}<div class="row"><button class="btn primary big" id="next">${t("app.continue")}</button></div>`;
       fin.querySelector("#tocheat")?.addEventListener("click", () => { clearTimeout(timer); STUDY_UI.cheat(q.topic, { back: () => run(sess) }); });
       const nx = fin.querySelector("#next"); nx.onclick = goNext; pad(); nx.focus({ preventScroll: true });
     };
 
-    const ctx = { label: "Проверить", check: null, _btn: null, ready(v) { if (this._btn) this._btn.disabled = !v; } };
+    const ctx = { label: t("run.check"), check: null, _btn: null, ready(v) { if (this._btn) this._btn.disabled = !v; } };
     const title = q.type === "cloze" ? "" : `<div class="qtitle">${esc(q.q)}</div>`;
-    const hint = TYPE_HINT[q.type] || (q.type === "mcq" ? (q.correct.length > 1 ? "Правильных ответов несколько" : "Выбери один ответ") : "");
+    const hint = TYPE_HINT[q.type] || (q.type === "mcq" ? t(q.correct.length > 1 ? "hint.mcqMulti" : "hint.mcqOne") : "");
     const H = q.hint;
     body.innerHTML = `${title}${hint ? `<p class="qhint">${hint}</p>` : ""}${imgs(q.img).length ? `<div class="qimgs">${imgs(q.img).map(s => `<img src="img/${s}" alt="">`).join("")}</div>` : ""}
       <div class="area"></div>
-      ${H ? `<button class="hintbtn" id="hintbtn">Нужна подсказка?</button><div class="hintbox" hidden>${H.text ? `<div>${esc(H.text)}</div>` : ""}${tableHtml(H.table)}${imgs(H.img).map(s => `<img class="zoomable" src="img/${s}" alt="">`).join("")}</div>` : ""}`;
+      ${H ? `<button class="hintbtn" id="hintbtn">${t("run.needHint")}</button><div class="hintbox" hidden>${H.text ? `<div>${esc(H.text)}</div>` : ""}${tableHtml(H.table)}${imgs(H.img).map(s => `<img class="zoomable" src="img/${s}" alt="">`).join("")}</div>` : ""}`;
     body.querySelector("#hintbtn")?.addEventListener("click", e => { const box = body.querySelector(".hintbox"); box.hidden = !box.hidden;
-      e.currentTarget.classList.toggle("on", !box.hidden); e.currentTarget.textContent = box.hidden ? "Нужна подсказка?" : "Скрыть подсказку"; });
+      e.currentTarget.classList.toggle("on", !box.hidden); e.currentTarget.textContent = box.hidden ? t("run.needHint") : t("run.hideHint"); });
     RENDER[q.type](q, body.querySelector(".area"), ctx);
     const doCheck = () => {
       const r = ctx.check();
       if (r.self) { // recall: оцениваешь сам
-        fin.innerHTML = `<div class="small muted" style="margin-bottom:10px">Сравни со своим ответом и оцени честно</div>
-          <div class="row"><button class="btn big" id="no">Не помню</button><button class="btn primary big" id="yes">Помню</button></div>`;
+        fin.innerHTML = `<div class="small muted" style="margin-bottom:10px">${t("run.selfGrade")}</div>
+          <div class="row"><button class="btn big" id="no">${t("app.dontRemember")}</button><button class="btn primary big" id="yes">${t("app.remember")}</button></div>`;
         fin.querySelector("#no").onclick = () => finalize(false);
         fin.querySelector("#yes").onclick = () => finalize(true);
         pad(); return;
@@ -774,7 +783,7 @@ function run(sess) {
       finalize(r.ok, r.extra);
     };
     if (ctx.instant) { // один правильный ответ — засчитываем сразу по клику
-      fin.innerHTML = `<div class="small muted" style="text-align:center;padding:6px 0">Нажми на ответ</div>`;
+      fin.innerHTML = `<div class="small muted" style="text-align:center;padding:6px 0">${t("run.tapAnswer")}</div>`;
       ctx.fire = doCheck;
     } else {
       fin.innerHTML = `<div class="row"><button class="btn primary big" id="chk">${ctx.label}</button></div>`;
@@ -795,7 +804,7 @@ function run(sess) {
 // место выбирает его (следующая фишка заменит), повторное — очищает.
 function placer(area, slots, chips, ctx) {
   const put = new Map(); let active = 0;
-  const pool = h(`<div class="chips"></div>`); area.append(pool);
+  const pool = h(`<div class="chips"></div>`); pool.dataset.empty = t("check.chipsDone"); area.append(pool);
   const firstEmpty = from => { for (let k = 0; k < slots.length; k++) { const j = (from + k) % slots.length; if (!put.has(j)) return j; } return null; };
   const paint = () => {
     const used = new Set(put.values());
@@ -814,7 +823,7 @@ function placer(area, slots, chips, ctx) {
     ctx.locked = 1; active = null; paint(); let good = 0;
     slots.forEach((s, i) => { const ok = put.has(i) && norm(chips[put.get(i)]) === norm(s.want); if (ok) good++;
       s.el.classList.add(ok ? "ok" : "bad"); if (!ok) s.el.insertAdjacentHTML("beforeend", `<span class="want">→ ${esc(s.want)}</span>`); });
-    return { ok: good === slots.length, extra: `<div>${good} из ${slots.length} на своих местах</div>` };
+    return { ok: good === slots.length, extra: `<div>${t("check.placed", { a: good, b: slots.length })}</div>` };
   };
 }
 const slotHtml = (i, hint) => `<button class="fslot" data-i="${i}">${hint ? `<span class="sh">${esc(hint)}</span>` : ""}<span class="fill"></span></button>`;
@@ -849,8 +858,8 @@ const RENDER = {
     let pick = null; ctx.instant = true;
     area.innerHTML = `<div class="tf"></div>`;
     const box = area.firstElementChild;
-    const els = [["Верно", true], ["Неверно", false]].map(([t, v]) => {
-      const b = h(`<button class="opt">${t}</button>`); b.onclick = () => { if (ctx.locked) return; pick = v; els.forEach(x => x.classList.toggle("sel", x === b)); ctx.fire(); };
+    const els = [[t("check.true"), true], [t("check.false"), false]].map(([label, v]) => {
+      const b = h(`<button class="opt">${label}</button>`); b.onclick = () => { if (ctx.locked) return; pick = v; els.forEach(x => x.classList.toggle("sel", x === b)); ctx.fire(); };
       box.append(b); return b;
     });
     ctx.check = () => { ctx.locked = 1; const ok = pick === q.answer; const b = els[pick ? 0 : 1];
@@ -915,8 +924,8 @@ const RENDER = {
       ctx.locked = 1; active = null; paint(); let good = 0;
       rEls.forEach((e, idx) => { const ok = ownerOf(rights[idx].k) === rights[idx].k; if (ok) good++; e.classList.add(ok ? "ok" : "bad"); });
       const ok = good === lefts.length;
-      const txt = v => typeof v === "object" ? "картинка " + (q.pairs.findIndex(p => p[0] === v) + 1) : esc(v);
-      return { ok, extra: ok ? "" : `<div>${good} из ${lefts.length} пар. Правильно:</div><ul>${q.pairs.map(p => `<li><b>${txt(p[0])}</b> — ${esc(p[1])}</li>`).join("")}</ul>` };
+      const txt = v => typeof v === "object" ? t("check.picture", { n: q.pairs.findIndex(p => p[0] === v) + 1 }) : esc(v);
+      return { ok, extra: ok ? "" : `<div>${t("check.pairs", { a: good, b: lefts.length })}</div><ul>${q.pairs.map(p => `<li><b>${txt(p[0])}</b> — ${esc(p[1])}</li>`).join("")}</ul>` };
     };
   },
 
@@ -937,7 +946,7 @@ const RENDER = {
       ctx.locked = 1; let good = 0;
       els.forEach((e, k) => { const ok = pick.get(k) === items[k].g; if (ok) good++; e.classList.add(ok ? "ok" : "bad");
         if (!ok) e.querySelector(".pills").insertAdjacentHTML("beforeend", `<span class="small" style="align-self:center">→ <b>${esc(items[k].g)}</b></span>`); });
-      return { ok: good === items.length, extra: `<div>${good} из ${items.length} на своих местах</div>` };
+      return { ok: good === items.length, extra: `<div>${t("check.placed", { a: good, b: items.length })}</div>` };
     };
   },
 
@@ -949,7 +958,7 @@ const RENDER = {
       ol.innerHTML = "";
       cur.forEach((k, pos) => {
         const li = h(`<li><div class="opt" draggable="${!checked}"><span class="key">${pos + 1}</span><span>${esc(q.items[k])}</span>
-          ${checked ? "" : `<span class="ctrl"><button data-d="-1" aria-label="Выше">↑</button><button data-d="1" aria-label="Ниже">↓</button></span>`}</div></li>`);
+          ${checked ? "" : `<span class="ctrl"><button data-d="-1" aria-label="${t("check.up")}">↑</button><button data-d="1" aria-label="${t("check.down")}">↓</button></span>`}</div></li>`);
         const o = li.firstElementChild; if (checked) o.classList.add(k === pos ? "ok" : "bad");
         li.querySelectorAll("[data-d]").forEach(b => b.onclick = ev => { ev.stopPropagation(); const to = pos + +b.dataset.d; if (to < 0 || to >= cur.length) return; [cur[pos], cur[to]] = [cur[to], cur[pos]]; draw(); });
         o.addEventListener("dragstart", () => { from = pos; o.classList.add("drag"); });
@@ -961,21 +970,26 @@ const RENDER = {
     };
     draw(); ctx.initiallyReady = true;
     ctx.check = () => { draw(true); const ok = cur.every((k, p) => k === p);
-      return { ok, extra: ok ? "" : `<div>Правильный порядок:</div><ol>${q.items.map(t => `<li>${esc(t)}</li>`).join("")}</ol>` }; };
+      return { ok, extra: ok ? "" : `<div>${t("check.rightOrder")}</div><ol>${q.items.map(it => `<li>${esc(it)}</li>`).join("")}</ol>` }; };
   },
 
   cloze(q, area, ctx) {
     const [a, b] = q.q.split("___");
-    area.innerHTML = `<div class="cloze">${esc(a)}<span class="gap"></span>${esc(b || "")}</div><div style="margin-top:16px"><input class="tin" placeholder="Твой ответ" autocomplete="off"></div>`;
+    area.innerHTML = `<div class="cloze">${esc(a)}<span class="gap"></span>${esc(b || "")}</div><div style="margin-top:16px"><input class="tin" placeholder="${t("check.yourAnswer")}" autocomplete="off"></div>`;
     const inp = area.querySelector("input"); setTimeout(() => inp.focus(), 30);
     inp.oninput = () => ctx.ready(inp.value.trim().length > 0);
     inp.onkeydown = e => { if (e.key === "Enter" && inp.value.trim()) { e.preventDefault(); ctx._btn.click(); } };
     ctx.check = () => {
       inp.disabled = true; const v = norm(inp.value);
-      const ok = q.answers.some(x => { const n = norm(x); return n === v || (v.length > 3 && n.length > 3 && n.slice(0, -2) === v.slice(0, n.length - 2) && Math.abs(n.length - v.length) <= 2); });
+      // ru: прощаем окончание (падеж) — до 2 последних букв; en: только -s / -es / 's (мн. число, притяжательная форма)
+      const enForms = w => w.length > 3 ? [w, w.replace(/s$/, ""), w.replace(/es$/, "")] : [w];
+      const enSame = (a, b) => { a = a.replace(/ s\b/g, "").split(" "); b = b.replace(/ s\b/g, "").split(" ");
+        return a.length === b.length && a.every((w, i) => enForms(w).some(f => enForms(b[i]).includes(f))); };
+      const ok = q.answers.some(x => { const n = norm(x); return n === v || (I18N.lang === "en" ? enSame(n, v)
+        : v.length > 3 && n.length > 3 && n.slice(0, -2) === v.slice(0, n.length - 2) && Math.abs(n.length - v.length) <= 2); });
       inp.classList.add(ok ? "ok" : "bad");
       area.querySelector(".gap").textContent = q.answers[0];
-      return { ok, extra: ok ? "" : `<div>Правильно: <b>${esc(q.answers[0])}</b></div>` };
+      return { ok, extra: ok ? "" : `<div>${t("check.correctIs", { a: `<b>${esc(q.answers[0])}</b>` })}</div>` };
     };
   },
 
@@ -986,21 +1000,21 @@ const RENDER = {
     const inputs = Array.from({ length: q.need }, (_, k) => { const i = h(`<input class="tin" placeholder="${k + 1}." autocomplete="off">`); box.append(i); return i; });
     inputs.forEach((inp, k) => { inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); inputs[k + 1] ? inputs[k + 1].focus() : ctx._btn.click(); } }; });
     setTimeout(() => inputs[0].focus(), 30);
-    ctx.label = "Показать ответ"; ctx.initiallyReady = true;
+    ctx.label = t("app.showAnswer"); ctx.initiallyReady = true;
     ctx.check = () => {
       inputs.forEach(inp => inp.disabled = true);
-      area.insertAdjacentHTML("beforeend", `<div class="reveal"><b>Эталон · нужно ${q.need} из ${q.answers.length}</b>
+      area.insertAdjacentHTML("beforeend", `<div class="reveal"><b>${t("check.referenceNeed", { need: q.need, n: q.answers.length })}</b>
         <ul style="margin:4px 0 0;padding-left:20px">${q.answers.map(a => `<li>${esc(a.label)}</li>`).join("")}</ul></div>`);
       return { self: true };
     };
   },
 
   recall(q, area, ctx) {
-    area.innerHTML = `<textarea class="tin" rows="3" placeholder="Можно записать, а можно ответить в уме"></textarea>`;
-    ctx.label = "Показать ответ"; ctx.initiallyReady = true;
+    area.innerHTML = `<textarea class="tin" rows="3" placeholder="${t("check.recallPh")}"></textarea>`;
+    ctx.label = t("app.showAnswer"); ctx.initiallyReady = true;
     ctx.check = () => {
       area.querySelector("textarea").disabled = true;
-      area.insertAdjacentHTML("beforeend", `<div class="reveal"><b>Эталон</b>${esc(q.back)}</div><div class="revvis">${visuals(q)}</div>`);
+      area.insertAdjacentHTML("beforeend", `<div class="reveal"><b>${t("check.reference")}</b>${esc(q.back)}</div><div class="revvis">${visuals(q)}</div>`);
       return { self: true };
     };
   }
@@ -1020,31 +1034,31 @@ function finish(sess) {
   const lvStat = lv => { const qs = list.filter(q => q.level === lv); return qs.length ? `${qs.filter(q => sess.answers[q.id]).length}/${qs.length}` : "—"; };
   $app.innerHTML = "";
   const el = h(`<div>
-    <div class="top"><div class="brand"><div class="logo">✦</div>Итоги</div><button class="iconbtn" id="x">✕</button></div>
+    <div class="top"><div class="brand"><div class="logo">✦</div>${t("finish.title")}</div><button class="iconbtn" id="x">✕</button></div>
     <div class="res"><div class="big" style="font-size:44px">${p >= 90 ? "🏆" : p >= 70 ? "🎉" : p >= 50 ? "💪" : "📚"}</div>
-      <div class="pct" style="margin-top:8px">${p}%</div><div class="muted">${ok} из ${n} · ${esc(sess.title)}</div>
+      <div class="pct" style="margin-top:8px">${p}%</div><div class="muted">${t("app.of", { a: ok, b: n })} · ${esc(sess.title)}</div>
       <div class="grid3">${[1, 2, 3].map(lv => `<div><b style="color:var(--l${lv})">${lvStat(lv)}</b><span class="tiny muted">${LEVEL_NAME[lv]}</span></div>`).join("")}</div></div>
-    <h2 class="sec">По микротемам</h2>
+    <h2 class="sec">${t("finish.bySub")}</h2>
     <div class="subs">${Object.entries(bySub).map(([sub, qs]) => `<div class="srow"><span>${esc(D.subs[sub] || sub)}</span>
       <span class="dots">${qs.map(q => `<span class="dot ${sess.answers[q.id] ? "y" : "n"}" title="${LEVEL_NAME[q.level]}">${q.level}</span>`).join("")}</span></div>`).join("")}</div>
-    <p class="tiny muted" style="margin:8px 2px 0">Цифра в квадратике — уровень задания: 1 разминка, 2 практика, 3 вспомни.</p>
+    <p class="tiny muted" style="margin:8px 2px 0">${t("finish.levelNote")}</p>
     ${window.STUDY_UI && bad.length ? (() => { const ts = [...new Set(bad.map(q => q.topic))].filter(STUDY_UI.hasCheat);
-      return ts.length ? `<h2 class="sec">Повтори шпаргалки</h2><div class="tools" style="margin-top:0">${ts.map(t => `<button class="tool" data-cheat="${t}"><b>📄 ${esc(topicOf(t).title)}</b>
-        <span>${bad.filter(q => q.topic === t).length} ${plural(bad.filter(q => q.topic === t).length, "ошибка", "ошибки", "ошибок")}</span></button>`).join("")}</div>` : ""; })() : ""}
-    ${bad.length ? `<h2 class="sec">Разбор ошибок</h2><div class="subs">${bad.map(q => `<div class="mist">
+      return ts.length ? `<h2 class="sec">${t("finish.reviewCheats")}</h2><div class="tools" style="margin-top:0">${ts.map(tid => `<button class="tool" data-cheat="${tid}"><b>📄 ${esc(topicOf(tid).title)}</b>
+        <span>${bad.filter(q => q.topic === tid).length} ${pl(bad.filter(q => q.topic === tid).length, "pl.mistake")}</span></button>`).join("")}</div>` : ""; })() : ""}
+    ${bad.length ? `<h2 class="sec">${t("finish.mistakes")}</h2><div class="subs">${bad.map(q => `<div class="mist">
       <div class="mq">${esc(q.q)}</div><div class="tiny muted">${esc(D.subs[q.sub] || "")} · ${LEVEL_NAME[q.level]}</div>
-      <div class="ma"><b>Ответ:</b> ${esc(answerOf(q))}</div>${q.explanation ? `<div class="ma">${esc(q.explanation)}</div>` : ""}</div>`).join("")}</div>` : ""}
+      <div class="ma"><b>${t("app.answer")}</b> ${esc(answerOf(q))}</div>${q.explanation ? `<div class="ma">${esc(q.explanation)}</div>` : ""}</div>`).join("")}</div>` : ""}
     <div class="startbar"><div class="in">
-      <button class="btn" id="home" style="flex:1">На главную</button>
-      ${sess.mode === "today" && tc.length ? `<button class="btn${bad.length ? "" : " primary"}" id="tcards" style="flex:1.2">Карточки · ${tc.length}</button>` : ""}
-      ${bad.length ? `<button class="btn primary" id="again" style="flex:1.4">Ошибки ещё раз · ${bad.length}</button>` : ""}</div></div>
+      <button class="btn" id="home" style="flex:1">${t("app.home")}</button>
+      ${sess.mode === "today" && tc.length ? `<button class="btn${bad.length ? "" : " primary"}" id="tcards" style="flex:1.2">${t("app.cardsN", { n: tc.length })}</button>` : ""}
+      ${bad.length ? `<button class="btn primary" id="again" style="flex:1.4">${t("finish.again", { n: bad.length })}</button>` : ""}</div></div>
   </div>`);
   $app.append(el); scrollTo(0, 0);
   el.querySelector("#x").onclick = home; el.querySelector("#home").onclick = home;
   el.querySelector("#tcards")?.addEventListener("click", todayCardsRun);
   el.querySelectorAll("[data-cheat]").forEach(b => b.onclick = () => STUDY_UI.cheat(b.dataset.cheat, { back: () => finish(sess) }));
   el.querySelector("#again")?.addEventListener("click", () =>
-    run(newSession(bad.map(q => q.id), { title: sess.title.replace(/ · (повтор|работа над ошибками).*$/, "") + " · работа над ошибками", mode: sess.mode })));
+    run(newSession(bad.map(q => q.id), { title: withMistakes(sess.title), mode: sess.mode })));
 }
 
 // Доступ для study.js (шпаргалки, карточки, карта).

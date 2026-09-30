@@ -18,7 +18,7 @@ const RANK={match:1,mcq:2,truefalse:3,sort:4,table:4.3,frame:4.6,order:5,cloze:6
 (async()=>{ const log=[]; let n=0, ok=0, stuck=[];
  try{ await w(100);
  $("#custom").click(); await w(50);
- if(/Выбрать/.test($("#selall").textContent)) $("#selall").click(); $("[data-len=\"0\"]").click(); $("#start").click(); await w(50);
+ if($("#selall").dataset.all!=="1") $("#selall").click(); $("[data-len=\"0\"]").click(); $("#start").click(); await w(50);
  const ids=()=>JSON.parse(localStorage.getItem(__KEY__)).sessions[0].qids;
  const order=ids().map(id=>byId[id]); let viol=0, same=0; const seen={};
  // правило порядка: в простой фазе «верно/неверно» только после первого определения (match/mcq) своей микротемы;

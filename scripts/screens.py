@@ -31,11 +31,11 @@ SCREENS = {
   "map-blank": "STUDY_UI.map({blank:true})",
   "today": "TR.startToday()",
   "custom": "TR.custom()",
-  "wrong": "const q=TR.Q.find(q=>q.type==='mcq'&&q.correct.length===1); TR.run(TR.newSession([q.id],{title:'Тест'})); setTimeout(()=>{const o=[...document.querySelectorAll('.opt')].find(o=>!o.textContent.includes(q.options[q.correct[0]])); o.click();},30)",
-  "finish": "const ids=TR.Q.slice(0,12).map(q=>q.id); const s=TR.newSession(ids,{title:'Проба'}); s.qids.forEach((id,i)=>s.answers[id]=i%3?1:0); s.done=true; TR.run(s)",
+  "wrong": "const q=TR.Q.find(q=>q.type==='mcq'&&q.correct.length===1); TR.run(TR.newSession([q.id],{title:I18N.t('lesson.test')})); setTimeout(()=>{const o=[...document.querySelectorAll('.opt')].find(o=>!o.textContent.includes(q.options[q.correct[0]])); o.click();},30)",
+  "finish": "const ids=TR.Q.slice(0,12).map(q=>q.id); const s=TR.newSession(ids,{title:I18N.t('finish.title')}); s.qids.forEach((id,i)=>s.answers[id]=i%3?1:0); s.done=true; TR.run(s)",
   "today-done": "Object.values(TR.S.q).forEach(r=>{r.due=Date.now()+5*864e5}); TR.Q.slice(0,10).forEach(q=>{TR.S.q[q.id]={n:1,ok:1,last:1,at:Date.now(),first:Date.now(),box:1,due:Date.now()+864e5}}); TR.S.cards={}; TR.home()",
-  "frame": "const q=TR.Q.find(q=>q.type==='frame'&&q.layout==='grid')||TR.Q.find(q=>q.type==='frame'); if(q) TR.run(TR.newSession([q.id],{title:'Схема'}))",
-  "table": "const q=TR.Q.find(q=>q.type==='table'); if(q) TR.run(TR.newSession([q.id],{title:'Таблица'}))",
+  "frame": "const q=TR.Q.find(q=>q.type==='frame'&&q.layout==='grid')||TR.Q.find(q=>q.type==='frame'); if(q) TR.run(TR.newSession([q.id],{title:I18N.t('lesson.test')}))",
+  "table": "const q=TR.Q.find(q=>q.type==='table'); if(q) TR.run(TR.newSession([q.id],{title:I18N.t('lesson.test')}))",
 }
 THEME = os.environ.get("THEME", "dark")
 for name, js in SCREENS.items():

@@ -72,6 +72,7 @@ const css = `
 document.head.append(Object.assign(document.createElement("style"), { textContent: css }));
 
 const T = () => window.TR;
+const { t: tt, p: pl } = window.I18N; // тексты интерфейса — i18n.js (tt, а не t: t здесь часто — урок)
 const $app = () => document.getElementById("app");
 const byTopic = tid => ST.list.filter(c => c.topic === tid);
 const cardStatus = id => { const r = T().S.cards[id]; return !r ? "new" : r.last === 0 ? "bad" : r.box >= 3 ? "ok" : "learn"; };
@@ -84,9 +85,9 @@ function conceptStatus(c) {
   return "new";
 }
 const fx = s => T().esc(s);
-const topBar = (title, sub) => `<div class="top"><div class="brand"><button class="iconbtn" id="x" title="Назад">←</button>
+const topBar = (title, sub) => `<div class="top"><div class="brand"><button class="iconbtn" id="x" title="${tt("app.back")}">←</button>
   <div><div>${fx(title)}</div>${sub ? `<div class="tiny muted" style="font-weight:500">${fx(sub)}</div>` : ""}</div></div>
-  <button class="iconbtn noprint" id="theme2" title="Светлая / тёмная тема">◐</button></div>`;
+  <button class="iconbtn noprint" id="theme2" title="${tt("app.theme")}">◐</button></div>`;
 const bindTop = (el, back) => {
   el.querySelector("#x").onclick = back;
   el.querySelector("#theme2").onclick = () => {
@@ -103,7 +104,7 @@ const trainSub = sub => { const { Q, D, run, newSession } = T(); run(newSession(
 // Сверху — что делать с уроком (тест, карточки, ошибки), ниже шпаргалка и прогресс по микротемам.
 // Урок без шпаргалки (данные ещё не готовы) тоже открывается: только действия и микротемы.
 function lesson(tid, opt = {}) {
-  const { D, Q, topicOf, esc, tableHtml, plural, status, run, newSession } = T();
+  const { D, Q, topicOf, esc, tableHtml, status, run, newSession } = T();
   const t = topicOf(tid), ch = ST.cheats[tid];
   const back = opt.back || T().home;
   const g = D.groups.find(g => g.id === t.group), ts = D.topics.filter(x => x.group === t.group);
@@ -123,28 +124,28 @@ function lesson(tid, opt = {}) {
     return (b.title ? `<h3>${esc(b.title)}</h3>` : "") + body;
   };
   const subs = [...new Set(tq.map(q => q.sub))];
-  const el = mount(`<div>${topBar(t.title, `${g ? g.title + " · " : ""}урок ${k + 1} из ${ts.length}`)}
+  const el = mount(`<div>${topBar(t.title, `${g ? g.title + " · " : ""}${tt("lesson.sub", { k: k + 1, n: ts.length })}`)}
     <div class="lacts noprint">
-      <button class="btn primary" id="train">Тест по уроку<small>${nTest} ${plural(nTest, "вопрос", "вопроса", "вопросов")}${fresh.length ? ` · ${fresh.length} новых` : ""}</small></button>
-      ${cs.length ? `<button class="btn" id="cards">Карточки<small>${cs.length} ${plural(cs.length, "понятие", "понятия", "понятий")}</small></button>` : ""}
-      ${bad.length ? `<button class="btn" id="mist" style="color:var(--bad)">Ошибки<small>${bad.length} ${plural(bad.length, "вопрос", "вопроса", "вопросов")}</small></button>` : ""}
+      <button class="btn primary" id="train">${tt("lesson.test")}<small>${nTest} ${pl(nTest, "pl.question")}${fresh.length ? tt("lesson.newN", { n: fresh.length }) : ""}</small></button>
+      ${cs.length ? `<button class="btn" id="cards">${tt("lesson.cards")}<small>${cs.length} ${pl(cs.length, "pl.concept")}</small></button>` : ""}
+      ${bad.length ? `<button class="btn" id="mist" style="color:var(--bad)">${tt("lesson.mistakes")}<small>${bad.length} ${pl(bad.length, "pl.question")}</small></button>` : ""}
     </div>
-    ${ch ? `<div class="cheat"><div class="tiny muted">Шпаргалка · ${esc(t.lesson || t.title)}</div><h1>${esc(t.title)}</h1>
+    ${ch ? `<div class="cheat"><div class="tiny muted">${tt("lesson.cheatOf", { title: esc(t.lesson || t.title) })}</div><h1>${esc(t.title)}</h1>
       <p class="gist">${esc(ch.gist)}</p>${(ch.blocks || []).map(block).join("")}</div>
-      <p class="tiny muted noprint" style="margin:8px 2px 0">Точка у понятия: <span style="color:var(--ok)">●</span> выучено, <span style="color:var(--l2)">●</span> учишь, <span style="color:var(--bad)">●</span> были ошибки, серая — ещё не встречалось.</p>`
-      : `<div class="empty cheat">Шпаргалки к этому уроку пока нет — тест и прогресс уже работают.</div>`}
-    <h2 class="sec noprint">Микротемы</h2>
+      <p class="tiny muted noprint" style="margin:8px 2px 0">${tt("lesson.legend", { ok: '<span style="color:var(--ok)">●</span>', learn: '<span style="color:var(--l2)">●</span>', bad: '<span style="color:var(--bad)">●</span>' })}</p>`
+      : `<div class="empty cheat">${tt("lesson.noCheat")}</div>`}
+    <h2 class="sec noprint">${tt("lesson.subs")}</h2>
     <div class="subs noprint">${subs.map(sb => { const qs = tq.filter(q => q.sub === sb), ok = qs.filter(q => status(q.id) === "ok").length, b2 = qs.filter(q => status(q.id) === "bad").length;
       return `<button class="srow" data-sub="${sb}" style="width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left"><span>${esc(D.subs[sb] || sb)}</span>
         <span class="tiny muted" style="white-space:nowrap">${ok}/${qs.length}${b2 ? ` · <span style="color:var(--bad)">${b2} ✕</span>` : ""} →</span></button>`; }).join("")}</div>
     <div class="cnav noprint">${prev ? `<button class="btn" id="prev">← ${esc(prev.title)}</button>` : ""}${next ? `<button class="btn" id="next">${esc(next.title)} →</button>` : ""}</div>
-    ${ch ? `<div class="noprint" style="text-align:center;margin-top:10px"><button class="link" id="print">Распечатать шпаргалку</button></div>` : ""}
+    ${ch ? `<div class="noprint" style="text-align:center;margin-top:10px"><button class="link" id="print">${tt("lesson.print")}</button></div>` : ""}
   </div>`);
   bindTop(el, back);
   const self = () => lesson(tid, opt);
   el.querySelector("#train").onclick = () => trainTopic(tid);
-  el.querySelector("#cards")?.addEventListener("click", () => cards(cs.map(c => c.id), { title: "Карточки · " + t.title, back: self }));
-  el.querySelector("#mist")?.addEventListener("click", () => run(newSession(bad.map(q => q.id), { title: t.title + " · работа над ошибками", mode: "topics" })));
+  el.querySelector("#cards")?.addEventListener("click", () => cards(cs.map(c => c.id), { title: tt("session.cardsOf", { title: t.title }), back: self }));
+  el.querySelector("#mist")?.addEventListener("click", () => run(newSession(bad.map(q => q.id), { title: t.title + " · " + tt("session.mistakes"), mode: "topics" })));
   el.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => trainSub(b.dataset.sub));
   el.querySelector("#print")?.addEventListener("click", () => print());
   el.querySelector("#prev")?.addEventListener("click", () => lesson(prev.id, opt));
@@ -153,14 +154,14 @@ function lesson(tid, opt = {}) {
 const cheat = lesson;
 
 function cheatList() {
-  const { D, esc, plural } = T();
-  const el = mount(`<div>${topBar("Шпаргалки", "Перечитать урок за 2 минуты")}
+  const { D, esc } = T();
+  const el = mount(`<div>${topBar(tt("cheats.title"), tt("cheats.sub"))}
     <div class="clist">${D.groups.map((g, gi) => { const ts = D.topics.filter(t => t.group === g.id && ST.cheats[t.id]); if (!ts.length) return "";
-      return `<div class="group"><div class="num tiny muted" style="font-weight:600">Тема ${gi + 1}</div><b>${esc(g.title)}</b>
+      return `<div class="group"><div class="num tiny muted" style="font-weight:600">${tt("home.topicN", { n: gi + 1 })}</div><b>${esc(g.title)}</b>
         <div class="topics">${ts.map(t => { const cs = byTopic(t.id), ok = cs.filter(c => conceptStatus(c) === "ok").length, bad = cs.filter(c => conceptStatus(c) === "bad").length;
-          return `<button class="topic" data-cheat="${t.id}"><div class="num">${cs.length} ${plural(cs.length, "понятие", "понятия", "понятий")}</div><b>${esc(t.title)}</b>
+          return `<button class="topic" data-cheat="${t.id}"><div class="num">${cs.length} ${pl(cs.length, "pl.concept")}</div><b>${esc(t.title)}</b>
             <div class="mbar"><i class="g" style="width:${ok / (cs.length || 1) * 100}%"></i><i class="r" style="width:${bad / (cs.length || 1) * 100}%"></i></div>
-            <div class="tstat"><span>${ok}/${cs.length} выучено</span>${bad ? `<span style="color:var(--bad)">${bad} с ошибками</span>` : ""}</div></button>`; }).join("")}</div></div>`; }).join("")}</div></div>`);
+            <div class="tstat"><span>${tt("app.learnedOf", { ok, n: cs.length })}</span>${bad ? `<span style="color:var(--bad)">${tt("app.withMistakes", { n: bad })}</span>` : ""}</div></button>`; }).join("")}</div></div>`; }).join("")}</div></div>`);
   bindTop(el, T().home);
   el.querySelectorAll("[data-cheat]").forEach(b => b.onclick = () => cheat(b.dataset.cheat, { back: cheatList }));
 }
@@ -183,7 +184,7 @@ function todayCards(now = Date.now()) {
 }
 
 function cards(ids, opt = {}) {
-  const { esc, topicOf, D, plural, save } = T();
+  const { esc, topicOf, D, save } = T();
   const list = opt.ordered ? ids.slice() : orderCards(ids, opt.max || 20);
   if (!list.length) return (opt.onDone || opt.back || T().home)();
   const back = opt.back || T().home;
@@ -192,15 +193,15 @@ function cards(ids, opt = {}) {
   const show = () => {
     const c = ST.concepts[list[i]], t = topicOf(c.topic);
     const front = rev ? c.def : c.term;
-    const el = mount(`<div>${topBar(opt.title || "Карточки", `${i + 1} из ${list.length}`)}
+    const el = mount(`<div>${topBar(opt.title || tt("cards.title"), tt("app.of", { a: i + 1, b: list.length }))}
       <div class="fcard" id="card"><div class="ctx">${esc(t.title)} · ${esc(D.subs[c.sub] || "")}</div>
         <div class="front ${rev ? "long" : ""}">${esc(front)}</div>
         ${flipped ? `<div class="back">${rev ? `<b class="t">${esc(c.term)}</b>` : esc(c.def)}${c.formula ? `<div style="margin-top:8px;text-align:center"><span class="fx" style="background:var(--bg2);border-radius:8px;padding:2px 8px">${esc(c.formula)}</span></div>` : ""}${c.img ? `<img class="zoomable" src="img/${c.img}" alt="">` : ""}</div>`
-          : `<div class="tap">${rev ? "Какой это термин? Вспомни и нажми" : "Вспомни определение и нажми на карточку"}</div>`}</div>
-      <div class="cdir"><button class="chipbtn" id="dir">${rev ? "Определение → термин" : "Термин → определение"} ⇄</button></div>
+          : `<div class="tap">${rev ? tt("cards.tapRev") : tt("cards.tap")}</div>`}</div>
+      <div class="cdir"><button class="chipbtn" id="dir">${rev ? tt("cards.dirRev") : tt("cards.dir")} ⇄</button></div>
       <div class="startbar"><div class="in">${flipped
-        ? `<button class="btn big" id="no" style="flex:1">Не знаю</button><button class="btn primary big" id="yes" style="flex:1">Знаю</button>`
-        : `<button class="btn primary big" id="flip" style="flex:1">Показать ответ</button>`}</div></div></div>`);
+        ? `<button class="btn big" id="no" style="flex:1">${tt("cards.dontKnow")}</button><button class="btn primary big" id="yes" style="flex:1">${tt("cards.know")}</button>`
+        : `<button class="btn primary big" id="flip" style="flex:1">${tt("app.showAnswer")}</button>`}</div></div></div>`);
     $app().style.paddingBottom = "110px";
     bindTop(el, () => { document.onkeydown = null; back(); });
     const flip = () => { if (!flipped) { flipped = true; show(); } };
@@ -225,13 +226,13 @@ function cards(ids, opt = {}) {
     document.onkeydown = null;
     const ok = Object.values(res).filter(Boolean).length, bad = list.filter(id => res[id] === 0);
     if (opt.onDone && !bad.length) return opt.onDone();
-    const el = mount(`<div>${topBar(opt.title || "Карточки", "Итог")}
-      <div class="res"><div class="pct">${ok}/${list.length}</div><div class="muted">${plural(ok, "карточка знакома", "карточки знакомы", "карточек знакомо")}</div></div>
-      ${bad.length ? `<h2 class="sec">Не знаю</h2><div class="subs">${bad.map(id => { const c = ST.concepts[id];
+    const el = mount(`<div>${topBar(opt.title || tt("cards.title"), tt("cards.result"))}
+      <div class="res"><div class="pct">${ok}/${list.length}</div><div class="muted">${pl(ok, "pl.cardsKnown")}</div></div>
+      ${bad.length ? `<h2 class="sec">${tt("cards.dontKnow")}</h2><div class="subs">${bad.map(id => { const c = ST.concepts[id];
         return `<div class="mist"><div class="mq">${esc(c.term)}</div><div class="ma">${esc(c.def)}</div></div>`; }).join("")}</div>` : ""}
       <div class="startbar"><div class="in">
-        ${bad.length ? `<button class="btn" id="again" style="flex:1">Ещё раз · ${bad.length}</button>` : ""}
-        <button class="btn primary" id="go" style="flex:1.4">${opt.onDone ? "Дальше — вопросы" : "Готово"}</button></div></div></div>`);
+        ${bad.length ? `<button class="btn" id="again" style="flex:1">${tt("cards.againN", { n: bad.length })}</button>` : ""}
+        <button class="btn primary" id="go" style="flex:1.4">${opt.onDone ? tt("cards.toQuestions") : tt("cards.done")}</button></div></div></div>`);
     $app().style.paddingBottom = "110px";
     bindTop(el, back);
     el.querySelector("#again")?.addEventListener("click", () => cards(bad, { ...opt, ordered: true }));
@@ -248,12 +249,12 @@ function map(opt = {}) {
   const { D, esc } = T();
   let blank = !!opt.blank, sel = null;
   const groups = D.groups.map(g => ({ g, ts: D.topics.filter(t => t.group === g.id && byTopic(t.id).length) })).filter(x => x.ts.length);
-  const el = mount(`<div>${topBar("Карта курса", `${ST.list.length} понятий · ${ST.links.length} связей`)}
-    <div class="seg noprint" id="mode" style="margin-bottom:12px"><button data-m="0" class="${blank ? "" : "on"}">Карта<small>нажми на понятие — увидишь связи</small></button>
-      <button data-m="1" class="${blank ? "on" : ""}">Пустая карта<small>вспомни, что скрыто</small></button></div>
-    <div class="mlegend"><span><i style="background:var(--ok)"></i>выучено</span><span><i style="background:var(--l2)"></i>учишь</span><span><i style="background:var(--bad)"></i>ошибки</span><span><i></i>новое</span></div>
+  const el = mount(`<div>${topBar(tt("map.title"), tt("map.sub", { c: ST.list.length, l: ST.links.length }))}
+    <div class="seg noprint" id="mode" style="margin-bottom:12px"><button data-m="0" class="${blank ? "" : "on"}">${tt("map.mode")}<small>${tt("map.modeHint")}</small></button>
+      <button data-m="1" class="${blank ? "on" : ""}">${tt("map.blank")}<small>${tt("map.blankHint")}</small></button></div>
+    <div class="mlegend"><span><i style="background:var(--ok)"></i>${tt("map.learned")}</span><span><i style="background:var(--l2)"></i>${tt("map.learning")}</span><span><i style="background:var(--bad)"></i>${tt("map.mistakes")}</span><span><i></i>${tt("map.new")}</span></div>
     <div class="map" id="map"><svg class="edges"></svg>${groups.map(({ g, ts }) => `<div class="gcol"><h3>${esc(g.title)}</h3>${ts.map(t => `
-      <div class="mlesson" data-lesson="${t.id}"><div class="lt"><span>${esc(t.title)}</span>${ST.cheats[t.id] ? `<button class="link" data-ch="${t.id}">урок →</button>` : ""}</div>
+      <div class="mlesson" data-lesson="${t.id}"><div class="lt"><span>${esc(t.title)}</span>${ST.cheats[t.id] ? `<button class="link" data-ch="${t.id}">${tt("map.lesson")}</button>` : ""}</div>
         <div class="nodes">${byTopic(t.id).map(c => `<button class="node ${blank ? "blank" : ""}" data-c="${c.id}"><span class="st ${conceptStatus(c)}"></span><span class="t">${esc(c.term)}</span></button>`).join("")}</div></div>`).join("")}</div>`).join("")}</div>
     <div style="height:40vh"></div></div>`, true);
   bindTop(el, () => { removeEventListener("resize", draw); $app().classList.remove("wide"); T().home(); });
@@ -302,14 +303,14 @@ function map(opt = {}) {
     const rs = rel(id);
     const p = panel(`<div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
         <div><div class="tiny muted">${esc(T().topicOf(c.topic).title)} · ${esc(D.subs[c.sub] || "")}</div>
-        <b style="font-size:19px">${shown ? esc(c.term) : "Что это за понятие?"}</b></div><button class="iconbtn" id="pclose">✕</button></div>
+        <b style="font-size:19px">${shown ? esc(c.term) : tt("map.whatConcept")}</b></div><button class="iconbtn" id="pclose">✕</button></div>
       <div style="margin-top:6px;font-size:15px;color:var(--ink2)">${esc(c.def)}</div>
       ${c.formula && shown ? `<div style="margin-top:6px"><span class="fx" style="background:var(--bg2);border-radius:8px;padding:2px 8px">${esc(c.formula)}</span></div>` : ""}
       ${shown && rs.length ? `<div class="rel">${rs.map(l => { const o = l.from === id ? l.to : l.from, oc = ST.concepts[o];
         return `<button class="chipbtn" data-go="${o}">${l.from === id ? `${esc(l.label || "")} → <b>${esc(oc.term)}</b>` : `<b>${esc(oc.term)}</b> → ${esc(l.label || "")}`}</button>`; }).join("")}</div>` : ""}
       <div class="row" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${blank && !reveal
-        ? `<button class="btn" id="bno">Не помню</button><button class="btn primary" id="byes">Помню</button>`
-        : `<button class="btn" id="psub">Потренировать микротему</button>${ST.cheats[c.topic] ? `<button class="btn" id="pch">Открыть урок</button>` : ""}`}</div>`);
+        ? `<button class="btn" id="bno">${tt("app.dontRemember")}</button><button class="btn primary" id="byes">${tt("app.remember")}</button>`
+        : `<button class="btn" id="psub">${tt("map.train")}</button>${ST.cheats[c.topic] ? `<button class="btn" id="pch">${tt("map.openLesson")}</button>` : ""}`}</div>`);
     p.querySelector("#pclose").onclick = () => { sel = null; panel(); paint(); };
     p.querySelectorAll("[data-go]").forEach(b => b.onclick = () => openConcept(b.dataset.go, true));
     p.querySelector("#psub")?.addEventListener("click", () => trainSub(c.sub));

@@ -10,7 +10,8 @@ You turn study material into a trainer: questions, cheat sheets, flashcards and 
 Skill files (paths relative to the folder containing this SKILL.md; usually `~/.claude/skills/study-quiz/`):
 - `RULES.md` — rules for writing questions, concepts and cheat sheets. **Read it in full before starting** and follow all of it.
 - `docs/FORMAT.md` — file format: all 10 question types, concepts, links, cheat sheets, the part file for inserting a lesson.
-- `assets/trainer/` — trainer template (with a sample on the topic "How memory works").
+- `assets/trainer/` — trainer template; interface in English or Russian (`lang` in `config.js`).
+- `examples/en/`, `examples/ru/` — the same sample topic "How memory works" in both languages: notes plus `quiz-data-example.js` and `study-example.js`.
 - `assets/cloud/`, `docs/CLOUD.md` — optional cloud copy for the phone with shared progress.
 - `scripts/` — tools. All are run **from the project folder** (the one containing `trainer/`):
 
@@ -37,8 +38,8 @@ Talk to the user in their language. Write notes, questions, concepts and cheat s
 
 - **The folder already has `trainer/index.html`** — this is an existing trainer: add to it. If the folder has a `CLAUDE.md` or its own rules (e.g. `RULES.md`), read them: the user's rules take precedence over the skill's rules.
 - **No trainer** — create a project:
-  1. `cp -r <skill>/assets/trainer ./trainer`.
-  2. In `trainer/config.js` set `title` (name in the header), `subtitle` (large heading, usually the course name) and a **unique** `key`, e.g. `trainer-biology-2026`. All pages opened via `file://` share one browser storage: without a unique key, progress of different trainers gets mixed.
+  1. `cp -r <skill>/assets/trainer ./trainer`, then copy the sample in the language of the material: `cp <skill>/examples/<en|ru>/*.js ./trainer/` (for another language take `en`).
+  2. In `trainer/config.js` set `lang` (`"en"` or `"ru"` — the language of the material; the interface supports only these two, for any other take `"en"`), `title` (name in the header), `subtitle` (large heading, usually the course name) and a **unique** `key`, e.g. `trainer-biology-2026`. All pages opened via `file://` share one browser storage: without a unique key, progress of different trainers gets mixed.
   3. Create folders `sources/` (source files as is) and `notes/` (clean text per lesson).
   4. Keep the sample (`quiz-data-example.js`, `study-example.js`) as a format reference while writing the first topic, then delete the files and their `<script>` lines from `index.html`.
   5. Suggest the user create a `CLAUDE.md` in the project folder: briefly what the course is and which id prefixes are taken — this speeds up future sessions.
@@ -102,7 +103,7 @@ python3 $S/sync.py
 6. Insert: `node $S/add_topic.js part.js --dry`, then without `--dry`.
 7. Check whether old lessons now have links to the new concepts — add them to `trainer/study-links.js`.
 
-**Large volume.** If there are more than 6–8 lessons, hand the work to helpers (Agent): **one helper per topic, 4–9 lessons, no nested helpers**. A simpler model is fine for generation; check the quality yourself. Give each one: the path to `RULES.md` and `docs/FORMAT.md` (to read in full), its lessons in `notes/` and images, the sample `assets/trainer/quiz-data-example.js`, its id prefix and the path for the part file. The helper checks itself that its part loads: `node -e 'require("./part.js")'`.
+**Large volume.** If there are more than 6–8 lessons, hand the work to helpers (Agent): **one helper per topic, 4–9 lessons, no nested helpers**. A simpler model is fine for generation; check the quality yourself. Give each one: the path to `RULES.md` and `docs/FORMAT.md` (to read in full), its lessons in `notes/` and images, the sample `examples/<lang>/quiz-data-example.js`, its id prefix and the path for the part file. The helper checks itself that its part loads: `node -e 'require("./part.js")'`.
 
 ## 5. Check (all mandatory)
 

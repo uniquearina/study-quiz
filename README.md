@@ -6,17 +6,17 @@ A skill for [Claude Code](https://claude.com/claude-code) that turns any study m
 
 The trainer is a single HTML page: open it with a double-click. No server, no sign-up; progress is stored in the browser.
 
-> Questions, cheat sheets and flashcards are written in the language of your material. The trainer's interface is currently in Russian.
+> The interface is in English or Russian. Questions, cheat sheets and flashcards are written in the language of your material.
 
 <p>
-  <img src="docs/img/home.png" width="49%" alt="Home: today's session, lessons, custom test">
-  <img src="docs/img/cheat.png" width="49%" alt="Lesson cheat sheet">
+  <img src="docs/img/en/home.png" width="49%" alt="Home: today's session, lessons, custom test">
+  <img src="docs/img/en/cheat.png" width="49%" alt="Lesson cheat sheet">
 </p>
 <p>
-  <img src="docs/img/frame.png" width="49%" alt="Diagram question: put the elements in place">
-  <img src="docs/img/card.png" width="24%" alt="Flashcard">
+  <img src="docs/img/en/frame.png" width="49%" alt="Diagram question: put the elements in place">
+  <img src="docs/img/en/card.png" width="24%" alt="Flashcard">
 </p>
-<img src="docs/img/map.png" alt="Course concept map with links">
+<img src="docs/img/en/map.png" alt="Course concept map with links">
 
 ## Why
 
@@ -113,9 +113,10 @@ SKILL.md              instructions for Claude
 RULES.md              rules for questions, concepts and cheat sheets
 docs/FORMAT.md        data format: 10 question types, concepts, links, cheat sheets
 docs/CLOUD.md         optional cloud copy (Cloudflare Pages + Access)
-assets/trainer/       trainer template with a sample topic, "How memory works" (in Russian)
+assets/trainer/       trainer template (interface: English or Russian)
 assets/cloud/         progress sync function
-examples/notes/       notes for the sample topic
+examples/en/          sample topic "How memory works": notes and trainer data
+examples/ru/          the same sample in Russian
 scripts/              checks and tools (run from the project folder)
 ```
 
@@ -147,4 +148,4 @@ node    $S/remove_topic.js <lesson id>   # remove a lesson (to archive/removed/)
 
 ## License
 
-[MIT](LICENSE). The sample in `assets/trainer/` and `examples/` was written for this repository. Don't publish materials from your own courses.
+[MIT](LICENSE). The sample in `examples/` was written for this repository. Don't publish materials from your own courses.

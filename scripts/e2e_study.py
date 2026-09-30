@@ -49,8 +49,8 @@ const ok=(c,msg)=>{ log.push((c?"✓ ":"✗ ")+msg); if(!c) fails++; };
   document.querySelector("#x").click(); await w(20);
   document.querySelector("#custom").click(); await w(20);
   ok(!!document.querySelector("#start") && !!document.querySelector("[data-gsel]"), "свой тест: выбор уроков и старт");
-  document.querySelector("#selall").click(); await w(20); if(/Выбрать/.test(document.querySelector("#selall").textContent)) { document.querySelector("#selall").click(); await w(20); }
-  ok(/Карточки · \d+/.test(document.querySelector("#cards")?.textContent||""), "свой тест: карточки по смеси уроков");
+  document.querySelector("#selall").click(); await w(20); if(document.querySelector("#selall").dataset.all!=="1") { document.querySelector("#selall").click(); await w(20); }
+  ok(+(document.querySelector("#cards")?.dataset.n||0)>0, "свой тест: карточки по смеси уроков");
   document.querySelector("#cards").click(); await w(20); ok(!!document.querySelector("#card"), "свой тест → карточки открываются");
   let bad=[]; TR.D.topics.forEach(t=>{ STUDY_UI.cheat(t.id); if(!document.querySelector(".cheat h1")) bad.push(t.id); });
   ok(!bad.length, "шпаргалки всех уроков открываются "+(bad.join(",")||""));
@@ -63,8 +63,8 @@ const ok=(c,msg)=>{ log.push((c?"✓ ":"✗ ")+msg); if(!c) fails++; };
   let done=false; STUDY_UI.cards(STUDY_UI.byTopic(TR.D.topics.find(t=>STUDY_UI.byTopic(t.id).length>=3).id).map(c=>c.id),{max:3,onDone:()=>{done=true;}});
   for(let k=0;k<3;k++){ document.querySelector("#flip").click(); document.querySelector("#yes").click(); }
   ok(done, "карточки: 3 ответа «знаю» → переход дальше");
-  const hasQ = TR.todayPlan().ids.length>0; TR.startToday(); await w(20); ok(hasQ ? !!document.querySelector(".qtt") && !/карточки/i.test(document.querySelector(".brand").textContent) : /карточки/i.test(document.querySelector(".brand").textContent), "«На сегодня» начинается с вопросов, карточки — в конце");
-  { const ss={qids:[TR.Q[0].id],answers:{[TR.Q[0].id]:1},title:"На сегодня",mode:"today"}; TR.finish(ss); await w(20); const b=document.querySelector("#tcards"); ok(!STUDY_UI.todayCards().length || !!b, "итоги «На сегодня»: кнопка карточек в конце"); if(b){ b.click(); await w(20); ok(!!document.querySelector("#card"), "итоги → карточки открываются"); } }
+  const hasQ = TR.todayPlan().ids.length>0; TR.startToday(); await w(20); ok(hasQ ? !!document.querySelector(".qtt") && !document.querySelector("#card") : !!document.querySelector("#card"), "«На сегодня» начинается с вопросов, карточки — в конце");
+  { const ss={qids:[TR.Q[0].id],answers:{[TR.Q[0].id]:1},title:I18N.t("session.today"),mode:"today"}; TR.finish(ss); await w(20); const b=document.querySelector("#tcards"); ok(!STUDY_UI.todayCards().length || !!b, "итоги «На сегодня»: кнопка карточек в конце"); if(b){ b.click(); await w(20); ok(!!document.querySelector("#card"), "итоги → карточки открываются"); } }
  }catch(e){ log.push("ОШИБКА "+e.message+" "+e.stack); fails++; }
  document.title=(fails?"FAIL ":"OK ")+log.join(" | ");
 })();

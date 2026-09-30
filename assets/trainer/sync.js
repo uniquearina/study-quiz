@@ -9,7 +9,8 @@
 
   const strip = S => { const o = Object.assign({}, S); delete o.ui; return o; };
   const hhmm = t => new Date(t).toTimeString().slice(0, 5);
-  const text = () => !on ? "" : err || (lastOk ? "☁ синхронизировано в " + hhmm(lastOk) : "☁ синхронизация…");
+  const tt = (k, v) => window.I18N ? I18N.t(k, v) : k; // тексты — i18n.js
+  const text = () => !on ? "" : (err && tt(err)) || (lastOk ? tt("sync.ok", { t: hhmm(lastOk) }) : tt("sync.busy"));
   const show = () => { const el = document.getElementById("sync-st"); if (el) el.textContent = text(); };
 
   async function sync() {
@@ -31,7 +32,7 @@
       // пришло новое с другого устройства — перерисуем главную (если она сейчас открыта)
       if (changed && document.getElementById("export")) { const y = scrollY; T.home(); scrollTo(0, y); }
     } catch (e) {
-      err = e === "login" ? "☁ вход истёк — обнови страницу" : "☁ нет связи — сохраню позже";
+      err = e === "login" ? "sync.login" : "sync.offline";
     }
     busy = false; show();
     if (again) { again = false; sync(); }
