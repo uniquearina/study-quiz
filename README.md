@@ -74,6 +74,7 @@ One trainer is one subject: its own Today session (~25 questions a day), progres
    ```
    ~/Study/
      index.html   ← hub: all subjects, how many for today, streak
+     sources/     ← drop unsorted files here, Claude sorts them by subject
      Anatomy/     sources/ notes/ trainer/
      History/     sources/ notes/ trainer/
      Chemistry/   sources/ notes/ trainer/
@@ -86,7 +87,12 @@ The "for today" counters on the hub show in Chrome and Edge. In other browsers t
 
 ### What to put where
 
-Put your sources in `sources/` inside the course folder. You can also just attach files in the chat and Claude will move them there.
+Put your sources in `sources/` inside the course folder. Two ways, both work:
+
+- **attach files in the chat** — Claude moves them into `sources/` itself;
+- **drop them into `sources/` yourself** (Finder, Explorer, VS Code), in any structure, then write "here are new lessons" or "update the trainer". Claude checks what's new in `sources/`, what was re-saved and what disappeared, and asks about files it can't place.
+
+Don't delete old sources: they are how Claude tells new files from processed ones.
 
 | Material | What to put |
 |---|---|

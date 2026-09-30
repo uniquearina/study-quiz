@@ -54,7 +54,7 @@ One trainer = one subject (course): its own Today session (~25 questions a day),
 2. Ask how to set it up. Recommend separate trainers; one trainer with subjects as topics is fine when the subjects are small and the user wants a single Today session. Don't decide yourself: "biology" and "anatomy" are one subject for some people and two for others, and moving progress later is painful.
 3. Separate trainers: in the current folder create `<Subject>/` for each (a clear name in the user's language), move its sources to `<Subject>/sources/`, then build each trainer inside its folder by steps 1–6, one after another (scripts are run from the subject folder). Every trainer gets its own `key` (`trainer-<subject>-<year>`). With 3+ subjects, one helper (Agent) per subject.
 4. Build the hub: `python3 $S/hub.py` in the parent folder → `index.html` with a card per subject (lessons, questions, how many for today, streak). Rerun it after any subject or lesson is added. It warns if two trainers share a `key` — fix that at once.
-5. Later "here are new lessons" in the parent folder: sort the new files by subject yourself, show the sorting in one line per file, then update each subject's trainer and rerun `hub.py`.
+5. Later "here are new lessons" in the parent folder (attached, or dropped into `<parent>/sources/` unsorted, or already into `<Subject>/sources/`): sort the new files by subject yourself, show the sorting in one line per file, then update each subject's trainer and rerun `hub.py`.
 
 ## 2. Material → text in `notes/<lesson>.md`
 
@@ -84,7 +84,7 @@ If a **list of lessons** was sent (a screenshot of the table of contents), check
 1. Read everything and find natural boundaries: headings, table of contents, change of subject, lecture dates.
 2. A lesson = one coherent idea of roughly 10–20 questions (4–10 concepts). Cut pieces that are too long, glue small fragments on one subject together. Group lessons into topics (`group`) of 3–9 lessons.
 3. Show the user the plan as one table "topic → lesson → source (pages / files) → what it's about"; make up clear lesson titles. Wait for confirmation or edits, then distribute the text into `notes/`.
-4. Record where each lesson came from (`<!-- source: file.pdf, pp. 12–18 -->` as the first line of `notes/<lesson>.md`), so that when the source changes you can find what to update.
+4. Record where each lesson came from (`<!-- source: file.pdf, pp. 12–18 -->` as the first line of `notes/<lesson>.md`; always, not only here — `sync.py` uses it to tell processed sources from new ones), so that when the source changes you can find what to update.
 
 **Material arrives in parts** (first a few lectures, then one at a time): put new material into existing topics if it fits by meaning, otherwise create a new topic. Do not re-split or rename lessons already in the trainer: progress is tied to their ids. If a new lecture continues a previous one, it is a separate lesson, and add a reference to it in the previous lesson's cheat sheet and links (step 4.7). In the plan, mark what's new and what already exists.
 
@@ -103,6 +103,7 @@ python3 $S/sync.py
 ```
 - 🆕 **NEW** — notes exist, lesson doesn't → step 4.
 - ✏️ **CHANGED** — the notes text changed since the last build → look at the `diff` (the script prints the command). Minor edits — targeted via `patch_questions.js`. Substantial ones — rebuild the part: keep questions on unchanged theory **with the same ids** (this preserves progress), add new ones, remove outdated ones, insert via `add_topic.js --replace`.
+- 📥 **sources/** — the user may drop files there by hand, without the chat, in any structure (a subfolder per lecture is fine). `sync.py` lists them below the lessons: 📥 a new source (not yet in any note) → read it into `notes/` (step 2) and on to step 4; ✏️ a source changed → compare it with the lessons made from it and update `notes/` (then those lessons show up as CHANGED); ❔ a source is gone → ask the user; don't delete the lesson just because the file is gone.
 - 🗑 **REMOVED** — lesson exists, notes don't → `node $S/remove_topic.js <id> --dry`, then without `--dry`. After removal, check the cheat sheets and links of neighboring lessons. If more than half of a topic's lessons disappeared — first ask the user whether the files were deleted by accident.
 - **Renaming:** REMOVED and NEW with nearly identical titles — most likely the same lesson. Compare the texts; if it is the same, handle it as CHANGED with the same lesson id and the new `lesson`.
 
