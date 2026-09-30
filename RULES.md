@@ -11,7 +11,7 @@ These rules were collected during real studying: each one came from a specific c
   - give definitions as **full sentences from the material**, worded exactly as in the source;
   - explanations are **detailed**, don't skimp: repeat the whole definition, explain why the other options don't fit, link to neighboring concepts;
   - make questions on **every item** of lists and classifications. If there are 4 stages, ask about each stage, not just one as an example.
-- **A budget, not "everything three times".** The bank must not bloat. Guideline: a large topic has **about 150 questions**, a small one **about 75**, i.e. ~10–20 per lesson and **3–5 per microtopic**. This is a guideline, not a limit: don't throw out something important to hit the number, but don't keep extras either. A microtopic contains:
+- **A budget, not "everything three times".** The bank must not bloat. Guideline: a large topic (one lecture / chapter) has **about 150 questions**, a small one **about 75**, i.e. ~10–20 per lesson (a subtopic of the lecture) and **3–5 per microtopic**. This is a guideline, not a limit: don't throw out something important to hit the number, but don't keep extras either. A microtopic contains:
   - 1 "match" with 3–5 pairs, covering all definitions of the microtopic at once;
   - 1–2 "choose": the key definition, or "choose all correct" for a list;
   - 1 "true/false" or "sort / order", if there are groups or a sequence;
@@ -104,7 +104,7 @@ These rules were collected during real studying: each one came from a specific c
 
 ## 8. Technical
 
-- Each large topic (section, module, chapter) is a separate file `trainer/quiz-data-<topic>.js`. Format: [docs/FORMAT.md](docs/FORMAT.md).
+- Each large topic (one lecture, chapter or module) is a separate file `trainer/quiz-data-<topic>.js`; lectures are not merged into one topic or split across topics. Format: [docs/FORMAT.md](docs/FORMAT.md).
 - All ids in a topic have their own prefix so they don't collide with other topics.
 - Lesson names (`title`) are short, 1–3 words: they are shown on small cards. The full name goes in `lesson`, and it matches the notes file name `notes/<lesson>.md`.
 - Before handing in, run `validate.js`: every question has a lesson and a microtopic, every non-"recall" has an explanation and a hint, all images exist, table rows have equal length.

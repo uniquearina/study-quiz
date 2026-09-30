@@ -2,13 +2,13 @@
 
 Sample strings are in English; real content is written in the language of the material.
 
-One large topic (section, module, sprint) = one file `trainer/quiz-data-<topic>.js`. The file adds itself to the shared list:
+One large topic (one lecture, chapter, module or sprint) = one file `trainer/quiz-data-<topic>.js`; its lessons are the lecture's subtopics. The file adds itself to the shared list:
 
 ```js
 // Questions: topic «Topic name».
 (window.QUIZ_PARTS = window.QUIZ_PARTS || []).push({
-  group: { id: "g-bio", title: "The Cell" },                   // large topic
-  topics: [                                                    // lessons of the topic, in order
+  group: { id: "g-bio", title: "The Cell" },                   // large topic = one lecture / chapter
+  topics: [                                                    // lessons = subtopics of the lecture, in order
     { id: "b-cell", title: "Cell Structure", lesson: "Cell Structure" }, // title: 1–3 words for the card,
     { id: "b-div",  title: "Division", lesson: "Mitosis and Meiosis" }    // lesson: full name (same as the notes file)
   ],

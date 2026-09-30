@@ -126,9 +126,11 @@ Photos of textbook pages, posters and PDFs can have their pictures cut out and p
 
 Shoot the page straight on; if a figure is small, take a separate close-up of it.
 
-### If the material isn't split into topics
+### How Claude splits the material into topics
 
-That's fine. For one big PDF, continuous notes or a pile of files, Claude finds the boundaries by headings and changes of subject, splits the text into lessons of 10–20 questions each and groups the lessons into topics. Before writing questions it shows a plan: "topic → lesson → source (pages) → what it's about". You can adjust it ("merge 3 and 4", "rename this"). Work continues only after your "ok".
+If it is already split into lectures or chapters, the split is kept: each lecture becomes its own section (about 150 questions for a large one), and its subtopics become lessons. Before building, Claude shows a plan: "lecture → subtopics → slides → ~questions".
+
+If there is no split at all, that's fine too. For one big PDF, continuous notes or a pile of files, Claude finds the boundaries by headings and changes of subject, splits the text into lessons of 10–20 questions each and groups the lessons into topics. Before writing questions it shows a plan: "topic → lesson → source (pages) → what it's about". You can adjust it ("merge 3 and 4", "rename this"). Work continues only after your "ok".
 
 ### If you add material in parts
 
@@ -136,7 +138,7 @@ For example, 5 lectures first, then one a week. Each time:
 
 1. Put the new lecture in `sources/` next to the old ones. Don't delete the old ones: a missing file looks like a removed lesson.
 2. Open Claude Code in the same course folder and write **"here are new lessons"**.
-3. Claude compares the sources with the trainer and writes questions only for what's new. A lecture that continues an existing topic goes into that topic; a new topic gets a new section.
+3. Claude compares the sources with the trainer and writes questions only for what's new. Each new lecture gets its own section; if it continues an earlier one, the two are linked on the course map.
 
 Progress is kept: old questions don't change, and new ones join Today alongside your reviews. If you edit or extend an old lecture and save it again, the skill notices and updates only the affected questions.
 

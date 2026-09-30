@@ -1,6 +1,6 @@
 ---
 name: study-quiz
-description: Turns any study material into a local memorization trainer — quizzes in 10 formats, cheat sheets per lesson, flashcards, a concept map and a daily spaced-repetition session. One HTML page that opens by double-click, no server. Material can be handwritten notes (photos, scans), PDF, docx/pptx, saved web pages, open links, pasted text or screenshots. Also keeps an existing trainer in sync when lessons are added, changed or removed, and runs an oral self-check. Use when the user wants tests, quizzes, flashcards, cheat sheets or a self-check trainer from lectures, notes, a textbook or a course, or brings new lessons for an existing trainer. Triggers: «сделай тесты / вопросы / карточки / шпаргалки по конспекту», «тренажёр для самопроверки», «вот новые уроки», «добавь тему в тренажёр», «обнови тренажёр», «проверь меня по теме», "make a quiz / flashcards from my notes", "add these lessons to my trainer", "update the trainer", "quiz me on this topic".
+description: Turns any study material into a local memorization trainer — quizzes in 10 formats, cheat sheets per lesson, flashcards, a concept map and a daily spaced-repetition session. One HTML page that opens by double-click, no server. Material can be handwritten notes (photos, scans), PDF, docx/pptx, saved web pages, open links, pasted text or screenshots. Material already split into lectures or chapters keeps that split: one lecture = one topic, its subtopics = lessons. Also keeps an existing trainer in sync when lessons are added, changed or removed, and runs an oral self-check. Use when the user wants tests, quizzes, flashcards, cheat sheets or a self-check trainer from lectures, notes, a textbook or a course, or brings new lessons for an existing trainer. Triggers: «сделай тесты / вопросы / карточки / шпаргалки по конспекту», «тренажёр для самопроверки», «вот новые уроки», «добавь тему в тренажёр», «обнови тренажёр», «проверь меня по теме», "make a quiz / flashcards from my notes", "add these lessons to my trainer", "update the trainer", "quiz me on this topic".
 ---
 
 # study-quiz — a memorization trainer from any material
@@ -72,7 +72,7 @@ Each lesson needs a file with its full text. File name = full lesson title (also
 
 **Handwritten notes across many photos:**
 - Page order: by file name; if there are no numbers — by capture time (`mdls -name kMDItemContentCreationDate` / EXIF). If unsure of the order, check whether the sentence continues from the previous page.
-- Photos of one lecture → one `notes/<lesson>.md`: join into continuous text; a word or phrase split across a page boundary is one whole. Which lecture a photo belongs to is shown by the subfolder, date or heading on the sheet; if it isn't clear — split by meaning (see "Material not split into lessons" below).
+- Photos of one lecture → one continuous text: a word or phrase split across a page boundary is one whole. Then split it into lesson notes by subtopic (see "Material already split into lectures" below). Which lecture a photo belongs to is shown by the subfolder, date or heading on the sheet; if it isn't clear — split by meaning (see "Material not split into lessons" below).
 - Do not guess terms and definitions: questions will be built from them verbatim. Illegible → `[?]` with a candidate reading. After transcribing all photos, ask your questions **in one list** ("photo 3, the line about …: 'retroactive' or 'reproductive'?"), not one at a time.
 - List blurry, cropped, overexposed photos and ask to reshoot only those. Read upside-down and sideways photos as they are.
 - Arrows, boxes, diagrams in the margins are structure: carry them over as a list, table or `[IMG]` if the diagram can't be retold in text.
@@ -80,13 +80,20 @@ Each lesson needs a file with its full text. File name = full lesson title (also
 
 If a **list of lessons** was sent (a screenshot of the table of contents), check against it that everything is present and say what's missing.
 
-**Material not split into lessons** (one big PDF, continuous notes, a book without chapters, mixed files) — split it yourself before writing `notes/`:
+**Material already split into lectures / chapters / modules** (separate lecture files or slide decks, chapters of a book, modules of a course) — keep that split:
+1. Each lecture = a separate topic (`group`) with its own `slug`, files `quiz-data-<slug>.js` / `study-<slug>.js` and its own id prefix. Lectures are not mixed with each other and not merged.
+2. Inside a lecture, subtopics = lessons: 3–9 lessons of 10–20 questions each; each has its own `notes/<lesson>.md`, its own microtopics (2–4) and its own cheat sheet. Subtopic boundaries: the lecture's headings, section slides, change of subject.
+3. Volume: a large lecture ~150 questions, a small one ~75 (a guideline, not a limit — RULES.md §0).
+4. Show the user the plan as one table "lecture (topic) → subtopics (lessons) → slides / pages → ~questions", so the split and the volume are visible before the build. Wait for confirmation or edits.
+5. Record the source of each lesson, as in item 4 below.
+
+**Material not split into lessons** — only when there is no split at all (one big PDF without chapters, continuous notes, a book without chapters, mixed files); a PDF with chapters or a folder of lecture files is already split (see above). Split it yourself before writing `notes/`:
 1. Read everything and find natural boundaries: headings, table of contents, change of subject, lecture dates.
 2. A lesson = one coherent idea of roughly 10–20 questions (4–10 concepts). Cut pieces that are too long, glue small fragments on one subject together. Group lessons into topics (`group`) of 3–9 lessons.
 3. Show the user the plan as one table "topic → lesson → source (pages / files) → what it's about"; make up clear lesson titles. Wait for confirmation or edits, then distribute the text into `notes/`.
 4. Record where each lesson came from (`<!-- source: file.pdf, pp. 12–18 -->` as the first line of `notes/<lesson>.md`; always, not only here — `sync.py` uses it to tell processed sources from new ones), so that when the source changes you can find what to update.
 
-**Material arrives in parts** (first a few lectures, then one at a time): put new material into existing topics if it fits by meaning, otherwise create a new topic. Do not re-split or rename lessons already in the trainer: progress is tied to their ids. If a new lecture continues a previous one, it is a separate lesson, and add a reference to it in the previous lesson's cheat sheet and links (step 4.7). In the plan, mark what's new and what already exists.
+**Material arrives in parts** (first a few lectures, then one at a time): a new lecture is a new topic with a new prefix (step 4.4), not a lesson in an existing topic. If it continues a subtopic of a previous lecture, connect them with links between topics (`crossLinks` → `trainer/study-links.js`, step 4.7), not with a shared `group`. An addendum to a lecture already in the trainer (a missed page, a corrected slide) goes into that lecture's topic. Do not re-split or rename lessons already in the trainer: progress is tied to their ids. In the plan, mark what's new and what already exists.
 
 **Images from textbooks, posters, scans** (`$S/crop_image.py`, see its `--help`):
 1. Many photos — first `crop_image.py dupes sources/…`: the same page shot twice or at another resolution counts once, take the larger one. PDF page → image: `crop_image.py pdf file.pdf --page N --out /tmp/p.png`.
@@ -112,19 +119,19 @@ python3 $S/sync.py
 1. Read the lesson **in full**, including diagrams: they often contain theory that isn't in the text.
 2. **First write out the skeleton:** concepts (definitions verbatim), lists with all items, classifications, stages, formulas, comparisons. Split into microtopics, 2–4 per lesson.
 3. From the skeleton, build the **part file** (format — `docs/FORMAT.md`, section "Part file"): lesson, microtopics, questions, concepts, links, cheat sheet, links to other topics. The essentials in brief (in detail — `RULES.md`):
-   - ~10–20 questions per lesson, 3–5 per microtopic; pack definitions into "match" with 3–5 pairs, lists into "select all" + "list";
+   - ~150 questions per large lecture (~75 per small one), ~10–20 per lesson (a subtopic of the lecture), 3–5 per microtopic; pack definitions into "match" with 3–5 pairs, lists into "select all" + "list";
    - definitions and terms — **in the material's words**;
    - **no cases or calculations**, no questions about the course or characters in examples, no dumb questions;
    - a detailed explanation and a nudging hint for all types except "recall";
    - in every microtopic with free-form answers — at least 2 simple questions on the same concepts;
    - comparisons and diagrams from the material — as `table` and `frame` types;
    - 4–10 concepts per lesson, a cheat sheet of 3–5 blocks, at least one link to a concept of another lesson.
-4. The lesson continues a topic already in the trainer (common when a course arrives one lecture a week) — same `group.id` and prefix; continue id numbers from the last one taken. New topic — new `group` (`id: "g-<slug>"`), a `slug` for files and a **new id prefix** (one or two Latin letters not taken in `trainer/quiz-data*.js`).
+4. A new lecture (chapter, module) — always a new topic: new `group` (`id: "g-<slug>"`), a `slug` for files and a **new id prefix** (one or two Latin letters not taken in `trainer/quiz-data*.js`), even when the course arrives one lecture a week and the new lecture continues the previous one — the continuation goes into `crossLinks`. Same `group.id` and prefix only for a lesson added to a lecture already in the trainer (a missed subtopic, an addendum); continue id numbers from the last one taken.
 5. Images: `crop_image.py crop` (step 2, «Images from textbooks»); a ready image without cropping — `sips -Z 1400 "<source>" --out "trainer/img/<prefix>-<name>.png"` (not macOS — `magick … -resize 1400x1400\>`).
 6. Insert: `node $S/add_topic.js part.js --dry`, then without `--dry`.
 7. Check whether old lessons now have links to the new concepts — add them to `trainer/study-links.js`.
 
-**Large volume.** If there are more than 6–8 lessons, hand the work to helpers (Agent): **one helper per topic, 4–9 lessons, no nested helpers**. A simpler model is fine for generation; check the quality yourself. Give each one: the path to `RULES.md` and `docs/FORMAT.md` (to read in full), its lessons in `notes/` and images, the sample `examples/<lang>/quiz-data-example.js`, its id prefix and the path for the part file. The helper checks itself that its part loads: `node -e 'require("./part.js")'`.
+**Large volume.** If there is more than one lecture or more than 6–8 lessons, hand the work to helpers (Agent): **one helper per lecture (topic): its 3–9 lessons, ~150 questions; no nested helpers**. A simpler model is fine for generation; check the quality yourself. Give each one: the path to `RULES.md` and `docs/FORMAT.md` (to read in full), its lessons in `notes/` and images, the sample `examples/<lang>/quiz-data-example.js`, its id prefix and the path for the part file. The helper checks itself that its part loads: `node -e 'require("./part.js")'`.
 
 ## 5. Check (all mandatory)
 
