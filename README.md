@@ -1,107 +1,150 @@
 # study-quiz
 
-Скилл для [Claude Code](https://claude.com/claude-code): превращает любые учебные материалы в личный тренажёр для запоминания. Подходят конспекты от руки, PDF, сохранённые страницы курса, статьи и просто текст. Получается квиз в 10 форматах, шпаргалки к урокам, флэшкарты, карта понятий и ежедневная сессия с интервальным повторением.
+**English** | [Русский](README.ru.md)
 
-Тренажёр — одна HTML-страница: открывается двойным кликом, без сервера и регистрации, прогресс хранится в браузере.
+A skill for [Claude Code](https://claude.com/claude-code) that turns any study material into a personal memorization trainer. Handwritten notes, PDFs, saved course pages, articles or plain text all work. You get a quiz in 10 formats, a cheat sheet for every lesson, flashcards, a concept map and a daily spaced-repetition session.
+
+The trainer is a single HTML page: open it with a double-click. No server, no sign-up; progress is stored in the browser.
+
+> Questions, cheat sheets and flashcards are written in the language of your material. The trainer's interface is currently in Russian.
 
 <p>
-  <img src="docs/img/home.png" width="49%" alt="Главная: На сегодня, уроки, свой тест">
-  <img src="docs/img/cheat.png" width="49%" alt="Шпаргалка урока">
+  <img src="docs/img/home.png" width="49%" alt="Home: today's session, lessons, custom test">
+  <img src="docs/img/cheat.png" width="49%" alt="Lesson cheat sheet">
 </p>
 <p>
-  <img src="docs/img/frame.png" width="49%" alt="Вопрос-схема: расставь элементы по местам">
-  <img src="docs/img/card.png" width="24%" alt="Флэшкарта">
+  <img src="docs/img/frame.png" width="49%" alt="Diagram question: put the elements in place">
+  <img src="docs/img/card.png" width="24%" alt="Flashcard">
 </p>
-<img src="docs/img/map.png" alt="Карта понятий курса со связями">
+<img src="docs/img/map.png" alt="Course concept map with links">
 
-## Зачем
+## Why
 
-Обычные квизы проверяют знания. Этот тренажёр помогает их **запомнить**:
+Ordinary quizzes test what you know. This trainer helps you **remember** it:
 
-- одно определение встречается в разных форматах, от простого к сложному: сначала узнаёшь, потом вспоминаешь сам;
-- определения — дословно из материала, разборы развёрнутые, подсказки наводят, но не выдают ответ;
-- без кейсов, расчётов, вопросов «с подвохом» и вопросов про сам курс;
-- ошибки возвращаются завтра, выученное — через 3, 7, 16, 35 и 80 дней.
+- each definition comes back in several formats, from easy to hard: first you recognize it, then you recall it yourself;
+- definitions are quoted word for word from the material, explanations are detailed, hints point the way without giving the answer away;
+- no case studies, calculations, trick questions or questions about the course itself;
+- mistakes come back tomorrow; what you know comes back after 3, 7, 16, 35 and 80 days.
 
-Правила составления вопросов собраны за реальный курс: каждое появилось из замечания «такой вопрос не помогает». Все правила — в [RULES.md](RULES.md).
+The question-writing rules were collected over a real course: each one came from a "this question doesn't help" remark. They are all in [RULES.md](RULES.md).
 
-## Что внутри тренажёра
+## What's in the trainer
 
 | | |
 |---|---|
-| **На сегодня** | ~25 вопросов в день: повторения и новые пополам, карточки в конце |
-| **10 типов вопросов** | соединить, выбрать, верно/неверно, разложить по группам, таблица с пропусками, схема (шаги, воронка, вложенные круги, сетка, дерево формулы), порядок, вписать слово, перечислить, вспомнить |
-| **Шпаргалки** | урок на одном экране: суть, главные понятия, списки, формулы, сравнение; можно распечатать |
-| **Флэшкарты** | термин ↔ определение, в обе стороны |
-| **Карта курса** | все понятия и связи между ними; режим «пустая карта» — вспомни, что скрыто |
-| **Свой тест** | любые уроки вперемешку, только ошибки или только новое, 20 / 40 / 80 / все |
-| **Прогресс** | в браузере; экспорт и импорт в файл; по желанию — облако для телефона ([docs/CLOUD.md](docs/CLOUD.md)) |
+| **Today** | ~25 questions a day: half reviews, half new, flashcards at the end |
+| **10 question types** | match, multiple choice, true/false, sort into groups, table with blanks, diagram (steps, funnel, nested circles, grid, formula tree), order, fill in the word, list, recall |
+| **Cheat sheets** | a lesson on one screen: the gist, key concepts, lists, formulas, comparisons; printable |
+| **Flashcards** | term ↔ definition, both ways |
+| **Course map** | all concepts and the links between them; "blank map" mode — recall what's hidden |
+| **Custom test** | any lessons mixed, mistakes only or new only, 20 / 40 / 80 / all |
+| **Progress** | in the browser; export and import to a file; optionally a cloud copy for your phone ([docs/CLOUD.md](docs/CLOUD.md)) |
 
-## Установка
-
-```bash
-git clone https://github.com/<you>/study-quiz ~/.claude/skills/study-quiz
-```
-
-Нужны: Claude Code, Node.js и Python 3. Для разбора сохранённых HTML-страниц — `pip3 install lxml`. Для автотестов — Google Chrome или Chromium.
-
-## Как пользоваться
-
-Открой Claude Code в пустой папке для курса и напиши, например:
-
-> сделай тренажёр по этим конспектам *(и приложи фото, PDF или текст)*
-
-Claude создаст `trainer/`, перепишет материал в `notes/`, составит вопросы, понятия и шпаргалки, проверит всё автотестами и скажет, что получилось. Открой `trainer/index.html` двойным кликом.
-
-Дальше:
-
-- **«вот новые уроки»** — добавит их в тот же тренажёр; изменённые и удалённые уроки тоже найдёт сам;
-- **«этот вопрос тупой»**, **«подсказка выдаёт ответ»** — поправит и запишет правило на будущее для всех тем;
-- **«проверь меня по теме X»** — устный экзамен: 8–10 вопросов «объясни своими словами», итог и файл, который возвращает упущенное в «На сегодня».
-
-### Материалы с платных курсов
-
-Скилл не заходит на закрытые платформы и ничего с них не скачивает: пользовательские соглашения обычно это запрещают. Сохрани уроки сам — открой урок, прокрути до конца, «Сохранить как → Веб-страница, полностью» в папку `sources/`. Скилл проверит, что каждая страница сохранилась целиком, и скажет, какие пересохранить.
-
-## Структура
-
-```
-SKILL.md              инструкция для Claude
-RULES.md              правила вопросов, понятий и шпаргалок
-docs/FORMAT.md        формат данных: 10 типов вопросов, понятия, связи, шпаргалки
-docs/CLOUD.md         необязательная облачная копия (Cloudflare Pages + Access)
-assets/trainer/       шаблон тренажёра с примером на теме «Как работает память»
-assets/cloud/         функция синхронизации прогресса
-examples/notes/       конспекты к примеру
-scripts/              проверки и инструменты (запускаются из папки проекта)
-```
-
-Проект курса после первого запуска выглядит так:
-
-```
-sources/      исходники как есть (фото, PDF, сохранённые страницы)
-notes/        чистый текст по урокам: <Название урока>.md
-trainer/      тренажёр: index.html, config.js, quiz-data-<тема>.js, study-<тема>.js, img/
-.study-quiz/  служебное: состояние для поиска изменений, журналы правок
-```
-
-## Скрипты
-
-Все запускаются из папки проекта; `S=~/.claude/skills/study-quiz/scripts`.
+## Install
 
 ```bash
-python3 $S/extract_html.py sources/      # сохранённые страницы → notes/*.md + проверка целостности
-python3 $S/sync.py                       # что изменилось: новые, изменённые, удалённые уроки
-node    $S/validate.js                   # структура данных
-node    $S/dumb_check.js --list          # признаки плохих вопросов
-python3 $S/terms.py                      # все ли термины из конспектов попали в вопросы
-python3 $S/e2e.py                        # автотест: весь банк вопросов в headless-Chrome
-python3 $S/e2e_study.py                  # автотест: «На сегодня», шпаргалки, карточки, карта
-python3 $S/screens.py                    # скриншоты экранов
-node    $S/add_topic.js part.js          # вставить урок; --replace — заменить
-node    $S/remove_topic.js <id урока>    # убрать урок (в archive/removed/)
+git clone https://github.com/uniquearina/study-quiz ~/.claude/skills/study-quiz
 ```
 
-## Лицензия
+Requires Claude Code, Node.js and Python 3. For saved HTML pages: `pip3 install lxml`. For the automated tests: Google Chrome or Chromium.
 
-[MIT](LICENSE). Пример в `assets/trainer/` и `examples/` написан для этого репозитория. Материалы своих курсов в публичный доступ не выкладывай.
+## Usage
+
+Open Claude Code in an empty folder for your course and write, for example:
+
+> make a trainer from these notes *(and attach photos, PDFs or text)*
+
+Claude creates `trainer/`, transcribes the material into `notes/`, writes questions, concepts and cheat sheets, checks everything with automated tests and tells you what it made. Open `trainer/index.html` with a double-click.
+
+After that:
+
+- **"here are new lessons"** — adds them to the same trainer; it also finds changed and removed lessons by itself;
+- **"this question is dumb"**, **"the hint gives the answer away"** — fixes it and records a rule for all topics from now on;
+- **"quiz me on topic X"** — an oral exam: 8–10 "explain in your own words" questions, a summary, and a file that brings what you missed back into Today.
+
+### What to put where
+
+Put your sources in `sources/` inside the course folder. You can also just attach files in the chat and Claude will move them there.
+
+| Material | What to put |
+|---|---|
+| PDF (textbook, handout, slides) | the whole file: `sources/textbook.pdf`. If you only need part of it, say which: "chapters 3–5, pp. 40–95" |
+| Handwritten notes | photos or scans in page order: `sources/lecture-1/01.jpg`, `02.jpg`… |
+| Word, PowerPoint | `.docx` / `.pptx` as is |
+| Online course pages | "Save as → Web page, complete" (see below) |
+| Article, public link | paste the link in the chat |
+| Text | paste it in the chat or save to `sources/*.txt` |
+
+It's easiest when one file or subfolder is one lesson, with a number in the name: `01 Introduction.pdf`. If the course has a table of contents, attach a screenshot and Claude will check nothing is missing.
+
+### Photos of handwritten notes
+
+Claude reads handwriting and joins several photos of one lecture into a single text. For best results:
+
+- one lecture, one subfolder: `sources/Lecture 3/`. If you can't sort them, just send everything: Claude will sort by dates and headings on the pages;
+- shoot pages in order, one per photo, straight and in good light. Claude gets the order from file names or capture time;
+- Claude doesn't guess what it can't read. It sends one list like "photo 3: 'retroactive' or 'reproductive'?" and asks you to retake only the bad photos.
+
+Diagrams and arrows in the margins make it into the trainer too, as tables, diagrams and "put in place" questions.
+
+### If the material isn't split into topics
+
+That's fine. For one big PDF, continuous notes or a pile of files, Claude finds the boundaries by headings and changes of subject, splits the text into lessons of 10–20 questions each and groups the lessons into topics. Before writing questions it shows a plan: "topic → lesson → source (pages) → what it's about". You can adjust it ("merge 3 and 4", "rename this"). Work continues only after your "ok".
+
+### If you add material in parts
+
+For example, 5 lectures first, then one a week. Each time:
+
+1. Put the new lecture in `sources/` next to the old ones. Don't delete the old ones: a missing file looks like a removed lesson.
+2. Open Claude Code in the same course folder and write **"here are new lessons"**.
+3. Claude compares the sources with the trainer and writes questions only for what's new. A lecture that continues an existing topic goes into that topic; a new topic gets a new section.
+
+Progress is kept: old questions don't change, and new ones join Today alongside your reviews. If you edit or extend an old lecture and save it again, the skill notices and updates only the affected questions.
+
+### Paid course materials
+
+The skill doesn't log in to closed platforms or download anything from them: their terms usually forbid it. Save the lessons yourself — open a lesson, scroll to the end, "Save as → Web page, complete" into `sources/`. The skill checks that each page saved completely and tells you which to save again.
+
+## Layout
+
+```
+SKILL.md              instructions for Claude
+RULES.md              rules for questions, concepts and cheat sheets
+docs/FORMAT.md        data format: 10 question types, concepts, links, cheat sheets
+docs/CLOUD.md         optional cloud copy (Cloudflare Pages + Access)
+assets/trainer/       trainer template with a sample topic, "How memory works" (in Russian)
+assets/cloud/         progress sync function
+examples/notes/       notes for the sample topic
+scripts/              checks and tools (run from the project folder)
+```
+
+A course project after the first run:
+
+```
+sources/      sources as is (photos, PDFs, saved pages)
+notes/        clean text per lesson: <Lesson title>.md
+trainer/      the trainer: index.html, config.js, quiz-data-<topic>.js, study-<topic>.js, img/
+.study-quiz/  internal: state for change detection, edit logs
+```
+
+## Scripts
+
+All run from the project folder; `S=~/.claude/skills/study-quiz/scripts`.
+
+```bash
+python3 $S/extract_html.py sources/      # saved pages → notes/*.md + completeness check
+python3 $S/sync.py                       # what changed: new, changed, removed lessons
+node    $S/validate.js                   # data structure
+node    $S/dumb_check.js --list          # signs of bad questions
+python3 $S/terms.py                      # did every term from the notes make it into questions
+python3 $S/e2e.py                        # test: the whole question bank in headless Chrome
+python3 $S/e2e_study.py                  # test: Today, cheat sheets, flashcards, map
+python3 $S/screens.py                    # screenshots
+node    $S/add_topic.js part.js          # insert a lesson; --replace to replace
+node    $S/remove_topic.js <lesson id>   # remove a lesson (to archive/removed/)
+```
+
+## License
+
+[MIT](LICENSE). The sample in `assets/trainer/` and `examples/` was written for this repository. Don't publish materials from your own courses.

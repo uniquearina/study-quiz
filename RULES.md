@@ -1,141 +1,143 @@
-# Правила составления вопросов, понятий и шпаргалок
+# Rules for writing questions, concepts and cheat sheets
 
-Эти правила собраны за время реальной учёбы: каждое появилось из конкретного замечания «так вопрос не помогает». Соблюдай их все. Если в проекте есть свои правила (`CLAUDE.md` или `RULES.md` в папке проекта), они важнее этих.
+Examples are in English; write the actual questions in the language of the material.
 
-## 0. Главное: задания для запоминания, а не для проверки
+These rules were collected during real studying: each one came from a specific complaint of the form "this question doesn't help". Follow all of them. If the project has its own rules (`CLAUDE.md` or `RULES.md` in the project folder), they take precedence over these.
 
-- Цель — **запомнить** теорию, а не «поймать» на ошибке. Поэтому:
-  - одно и то же определение повторяем **как можно чаще** в разных простых форматах;
-  - определения даём **полными фразами из материала**, так, как они сформулированы в источнике;
-  - пояснения **развёрнутые**, не экономим: повторяем определение целиком, объясняем, почему остальные варианты не подходят, связываем с соседними понятиями;
-  - вопросы делаем **по всем пунктам** списков и классификаций. Если есть 4 стадии, то по каждой стадии, а не по одной для примера.
-- **Бюджет, а не «всё по 3 раза».** Банк не должен разрастаться. Ориентир: большая тема — **около 150 вопросов**, маленькая — **около 75**, то есть ~10–20 на урок и **3–5 на микротему**. Это ориентир, а не лимит: важное не выкидываем ради цифры, но и лишнего не держим. Состав микротемы:
-  - 1 «соедини» на 3–5 пар — сразу все определения микротемы;
-  - 1–2 «выбери» — ключевое определение или «выбери все верные» для списка;
-  - 1 «верно/неверно» или «разложи / порядок», если есть группы или последовательность;
-  - 1 со свободным ответом — «впиши», «перечисли» или «вспомни».
-- **Упаковывай, а не дроби:** список — одно «выбери все» + одно «перечисли», а не по вопросу на пункт; все формулы урока — одно «соедини метрику и формулу» + «впиши» для 2–3 главных.
-- **Главное спрашиваем, детали — в разборы:** ключевые определения, фреймворки, этапы, формулы — в вопросах; плюсы и минусы, второстепенные пункты, нюансы — внутри «выбери все», «соедини» и в тексте разборов.
-- **Без зеркальных дублей:** не спрашивай одно определение и как «что такое X», и как «какое понятие так определяется». Повторение для запоминания даёт сам тренажёр: ошибки возвращаются в следующие тесты.
-- **Формулы** — везде, где они есть в материале: сначала в простом формате («выбери верную формулу», «соедини метрику и формулу»), потом «впиши часть формулы» и «вспомни формулу».
+## 0. The main thing: tasks for memorizing, not for testing
 
-## 1. Цель — выучить теорию
+- The goal is to **memorize** the theory, not to "catch" the learner making a mistake. Therefore:
+  - repeat the same definition **as often as possible** in different simple formats;
+  - give definitions as **full sentences from the material**, worded exactly as in the source;
+  - explanations are **detailed**, don't skimp: repeat the whole definition, explain why the other options don't fit, link to neighboring concepts;
+  - make questions on **every item** of lists and classifications. If there are 4 stages, ask about each stage, not just one as an example.
+- **A budget, not "everything three times".** The bank must not bloat. Guideline: a large topic has **about 150 questions**, a small one **about 75**, i.e. ~10–20 per lesson and **3–5 per microtopic**. This is a guideline, not a limit: don't throw out something important to hit the number, but don't keep extras either. A microtopic contains:
+  - 1 "match" with 3–5 pairs, covering all definitions of the microtopic at once;
+  - 1–2 "choose": the key definition, or "choose all correct" for a list;
+  - 1 "true/false" or "sort / order", if there are groups or a sequence;
+  - 1 free-answer question: "fill in", "list" or "recall".
+- **Pack, don't split:** a list gets one "choose all" + one "list", not a question per item; all formulas of a lesson get one "match metric to formula" + "fill in" for the 2–3 main ones.
+- **Ask about the main things, put details in explanations:** key definitions, frameworks, stages, formulas go into questions; pros and cons, secondary items, nuances go inside "choose all", "match" and the explanation text.
+- **No mirror duplicates:** don't ask the same definition both as "what is X" and as "which concept is defined this way". Repetition for memorizing is provided by the trainer itself: mistakes come back in later tests.
+- **Formulas** everywhere they appear in the material: first in a simple format ("choose the correct formula", "match metric to formula"), then "fill in part of the formula" and "recall the formula".
 
-- Вопросы проверяют знание теории: определения, признаки, списки, составные части фреймворков, этапы, роли, отличия одного понятия от другого, формулы.
-- **Никаких кейсов на применение.** Не нужны задания «разложи примеры», «определи стадию по событию», «что ближе к X в этой ситуации».
-- Примеры и кейсы можно приводить в разборе как иллюстрацию, но не в самом вопросе и не в вариантах ответа.
-- **Никаких расчётов.** Ничего не надо считать. Формулы проверяем только на знание: соединить величину с формулой, вставить пропущенную часть, выбрать верную формулу, «вспомни формулу».
-- **Исключение** — только если пользователь сам попросил кейсы или задачи по конкретной теме. Тогда без арифметики: что на что умножать, какой фильтр что сужает, в каком порядке идут шаги.
+## 1. The goal is to learn the theory
 
-## 2. Чего не должно быть
+- Questions test knowledge of the theory: definitions, features, lists, components of frameworks, stages, roles, differences between one concept and another, formulas.
+- **No application cases.** No tasks like "sort the examples", "identify the stage from the event", "what is closer to X in this situation".
+- Examples and cases may appear in the explanation as an illustration, but not in the question itself and not in the answer options.
+- **No calculations.** Nothing needs to be computed. Formulas are tested only for knowledge: match a quantity to its formula, fill in a missing part, choose the correct formula, "recall the formula".
+- **Exception**: only if the user explicitly asked for cases or problems on a specific topic. Even then, no arithmetic: what gets multiplied by what, which filter narrows what, in what order the steps go.
 
-- **Тупых вопросов:**
-  - ответ очевиден без знания темы: неверные варианты абсурдны, либо правильный вариант заметно длиннее или подробнее остальных;
-  - «верно/неверно» с абсолютным словом («всегда», «только», «обязательно», «никогда»): ответ «неверно» угадывается по слову. Абсолютное слово допустимо, только если оно и есть суть проверки;
-  - вопрос проверяет формулировку или угадывание, а не знание;
-  - случайные числа и мелочи, не относящиеся к сути (длительность, «сколько процентов в примере»);
-  - расплывчатые утверждения «верно/неверно», которые можно понять двояко;
-  - дубли: один и тот же вопрос в том же формате с тем же ответом;
-  - шаблонные формулировки вида «Преимущество X: пункт.» — непонятно, что спрашивают. Вопрос читается как нормальное предложение: «"Пункт" — это одно из преимуществ X».
-- **Вопросов о самом курсе, учебнике или лекции:** на кого он рассчитан, «в уроке сказано…», длительность, что автор советует сделать.
-- **Вопросов о героях историй и примеров** из материала и об их кейсах. Имена таких героев можно записать в `.study-quiz/heroes.txt` (по одному в строке) — `dumb_check.js` будет их ловить.
-- Совсем простых вопросов, на которые ответит любой без учёбы.
-- Формулировок «в курсе…», «в уроке…», «в лекции…» даже в разборах.
-- Длинных пересказов целых абзацев. Определения берём из материала дословно, а остальное в разборах и подсказках пишем своими словами.
+## 2. What must not be there
 
-## 2а. Термины — словами из материала
+- **Dumb questions:**
+  - the answer is obvious without knowing the topic: wrong options are absurd, or the correct option is noticeably longer or more detailed than the others;
+  - "true/false" with an absolute word ("always", "only", "necessarily", "never"): the answer "false" is guessed from the word. An absolute word is allowed only if it is the very point being tested;
+  - the question tests wording or guessing, not knowledge;
+  - random numbers and trivia unrelated to the substance (duration, "what percentage in the example");
+  - vague "true/false" statements that can be read two ways;
+  - duplicates: the same question in the same format with the same answer;
+  - template phrasings like "Advantage of X: item." — it's unclear what is being asked. The question reads as a normal sentence: "'Item' is one of the advantages of X".
+- **Questions about the course, textbook or lecture itself:** who it is aimed at, "the lesson says…", duration, what the author recommends doing.
+- **Questions about characters of stories and examples** from the material and their cases. Names of such characters can be written to `.study-quiz/heroes.txt` (one per line), and `dumb_check.js` will catch them.
+- Trivially simple questions that anyone could answer without studying.
+- Phrasings like "in the course…", "in the lesson…", "in the lecture…", even in explanations.
+- Long retellings of entire paragraphs. Definitions are taken from the material verbatim; everything else in explanations and hints is written in your own words.
 
-- Названия понятий, этапов, блоков, ролей и метрик берём **так, как они названы в материале**.
-- Ключевые слова внутри коротких определений и формул тоже из материала. Тогда в «соединить», «вписать слово» и «вспомни» узнаются те же формулировки, что в теории.
-- В «вписать слово» правильный ответ — термин из материала, плюс варианты написания.
+## 2a. Terms in the words of the material
 
-## 3. Покрытие
+- Names of concepts, stages, blocks, roles and metrics are taken **exactly as they are named in the material**.
+- Key words inside short definitions and formulas also come from the material. Then "match", "fill in the word" and "recall" use the same wording as the theory.
+- In "fill in the word" the correct answer is the term from the material, plus spelling variants.
 
-- **Каждый** термин, определение, признак, список, часть фреймворка и формула из материала встречаются хотя бы в одном вопросе.
-- Важные понятия спрашиваем **3–5 раз в разных форматах**: понятие → определение; пропуск в определении; «перечисли признаки / составляющие»; «чем X отличается от Y»; «верно / неверно»; «вспомни».
-- Урок делим на **микротемы**, 2–4 на урок. В каждой микротеме не меньше 3 вопросов разных типов и не меньше 2 уровней сложности.
-- У каждого понятия, на которое опираются другие вопросы, в его микротеме есть **базовый вопрос «что это такое»** типа «соединить» или «выбрать ответ». Он показывается первым.
-- После составления прогоняем сверку `terms.py`: выделенные жирным термины и определения вида «X — это…» должны найтись в вопросах. Всё, что сверка пометила как пропущенное, проверяем вручную.
+## 3. Coverage
 
-## 4. Типы заданий и порядок
+- **Every** term, definition, feature, list, framework part and formula from the material appears in at least one question.
+- Important concepts are asked **3–5 times in different formats**: concept → definition; gap in the definition; "list the features / components"; "how does X differ from Y"; "true / false"; "recall".
+- Split a lesson into **microtopics**, 2–4 per lesson. Each microtopic has at least 3 questions of different types and at least 2 difficulty levels.
+- Every concept that other questions rely on has, in its microtopic, a **basic "what is it" question** of type "match" or "choose the answer". It is shown first.
+- After writing, run the `terms.py` check: bolded terms and definitions of the form "X is…" must be found in the questions. Everything the check flags as missing is reviewed manually.
 
-| Уровень | Типы | Что проверяют |
+## 4. Task types and order
+
+| Level | Types | What they test |
 |---|---|---|
-| 1 · Разминка | соединить (`match`), выбрать ответ (`mcq`), верно/неверно (`truefalse`) | узнавание |
-| 2 · Практика | разложить по группам (`sort`), таблица с пропусками (`table`), схема (`frame`), порядок (`order`) | структура |
-| 3 · Вспомни | вписать слово (`cloze`), перечислить (`list`), вспомнить своими словами (`recall`) | воспроизведение без подсказок |
+| 1 · Warm-up | match (`match`), choose the answer (`mcq`), true/false (`truefalse`) | recognition |
+| 2 · Practice | sort into groups (`sort`), table with gaps (`table`), diagram (`frame`), order (`order`) | structure |
+| 3 · Recall | fill in the word (`cloze`), list (`list`), recall in your own words (`recall`) | reproduction without prompts |
 
-- **Тест идёт в три фазы:** сначала простые, потом структура, в конце свободный ответ. Порядок строит сам тренажёр, от тебя нужны правильные типы.
-- **Перед каждым вопросом со свободным ответом** в той же микротеме обязательно есть **минимум 2 простых** вопроса на то же понятие. Сначала узнаёшь, потом вспоминаешь сам.
-- «Разложить по группам» — только по теоретическим признакам, не по примерам.
-- «Порядок» — только там, где в теории есть настоящая последовательность.
-- «Таблица» (`table`) и «схема» (`frame`) — для сравнений и фреймворков из материала: пустая таблица сравнения, воронка, шаги, вложенные круги, сетка (канва), дерево формулы.
-- «Соединить» — 3–5 пар: при двух парах вторая угадывается сама.
-- В одном «соедини» все пары одного вида: слева только термины (или только роли), справа только их определения. Каждый правый пункт подходит ровно к одному левому. Если однотипных пар меньше трёх, лучше «выбери вариант» или «разложи по группам».
-- В «выбрать ответ» неверные варианты правдоподобные и примерно той же длины, что правильный. Позицию правильного ответа меняй.
-- **«Перечисли»: число в вопросе = число пунктов в эталоне.** Устойчивую структуру (этапы, блоки фреймворка) называем целиком: `need` = всем пунктам, «Назови по порядку 5 частей…». Открытый список можно не целиком, но тогда так и пишем: «Назови хотя бы 4 преимущества… (всего их 5)». Никогда «Назови 4», когда в эталоне 5.
-- **Эталон — в порядке материала.** Пункты `answers`, шаги в «порядке» и слоты в схеме идут так, как перечислены в источнике.
-- «Перечисли» и «вспомни» проверяются самооценкой: пишешь пункты, смотришь эталон и отмечаешь «Помню» или «Не помню». Ключевые корни (`keys`) всё равно заполняем.
-- В «вписать слово» ответ — одно слово или короткий термин, с вариантами написания.
+- **A test runs in three phases:** simple first, then structure, free answer at the end. The trainer builds the order itself; you need to supply the right types.
+- **Before every free-answer question** the same microtopic must contain **at least 2 simple** questions on the same concept. First you recognize, then you recall on your own.
+- "Sort into groups" only by theoretical features, not by examples.
+- "Order" only where the theory has a real sequence.
+- "Table" (`table`) and "diagram" (`frame`) are for comparisons and frameworks from the material: an empty comparison table, a funnel, steps, nested circles, a grid (canvas), a formula tree.
+- "Match" has 3–5 pairs: with two pairs the second one is guessed automatically.
+- In one "match" all pairs are of the same kind: on the left only terms (or only roles), on the right only their definitions. Each right item fits exactly one left item. If there are fewer than three same-kind pairs, better use "choose the option" or "sort into groups".
+- In "choose the answer" the wrong options are plausible and about the same length as the correct one. Vary the position of the correct answer.
+- **"List": the number in the question = the number of items in the reference answer.** A fixed structure (stages, framework blocks) is named in full: `need` = all items, "Name the 5 parts of … in order". An open list may be partial, but then say so: "Name at least 4 advantages of … (there are 5 in total)". Never "Name 4" when the reference has 5.
+- **The reference answer follows the order of the material.** Items in `answers`, steps in "order" and slots in a diagram go in the order they are listed in the source.
+- "List" and "recall" are checked by self-assessment: you write the items, look at the reference and mark «Помню» ("I remember") or «Не помню» ("I don't remember"). Key roots (`keys`) are filled in anyway.
+- In "fill in the word" the answer is one word or a short term, with spelling variants.
 
-## 5. Пояснения
+## 5. Explanations
 
-- У **каждого** вопроса, кроме «вспомни», есть **развёрнутый** разбор, обычно 3–5 предложений: полное определение из материала, почему ответ такой, чем не подходят остальные варианты, связь с соседними понятиями.
-- **Разбор — словами материала, без додумок.** Если в источнике 4 шага, в разборе 4 шага теми же словами.
-- У «вспомни» есть полный, но компактный эталонный ответ (`back`).
-- Где помогает сравнение, добавляем небольшую таблицу в разбор (`explainTable`).
+- **Every** question except "recall" has a **detailed** explanation, usually 3–5 sentences: the full definition from the material, why the answer is what it is, why the other options don't fit, the link to neighboring concepts.
+- **The explanation uses the material's words, no inventions.** If the source has 4 steps, the explanation has 4 steps in the same words.
+- "Recall" has a full but compact reference answer (`back`).
+- Where a comparison helps, add a small table to the explanation (`explainTable`).
 
-## 6. Подсказки
+## 6. Hints
 
-- Подсказка есть у **каждого** вопроса, кроме «вспомни».
-- Подсказка **наводит, но не выдаёт ответ**: «вспомни, с чего начинает каждый подход…», «одна причина внутренняя, одна — внешняя».
-- В подсказке может быть схема или таблица, если по ней нельзя прочитать ответ.
+- **Every** question except "recall" has a hint.
+- A hint **points the way but does not give away the answer**: "remember what each approach starts with…", "one reason is internal, one is external".
+- A hint may contain a diagram or table if the answer can't be read from it.
 
-## 7. Картинки
+## 7. Images
 
-- Берём только **информативные** картинки: схемы, таблицы, диаграммы, графики, фреймворки, формулы. Декоративные иллюстрации и картинки к историям не берём.
-- Схему, которая объясняет понятие и **не раскрывает ответ**, ставим прямо в вопрос (`img`) или в подсказку.
-- Схему, по которой ответ читается напрямую, ставим **только в разбор** (`explainImg`).
-- **Картинка в вопросе — только про этот вопрос.** Общую схему всей темы к конкретному списку не ставим: она сбивает.
-- Картинки копируем в `trainer/img/` с префиксом темы и уменьшаем до 1400 px (macOS: `sips -Z 1400 in.png --out trainer/img/x-name.png`; иначе `magick in.png -resize 1400x1400\> out.png`).
+- Take only **informative** images: diagrams, tables, charts, graphs, frameworks, formulas. Don't take decorative illustrations or pictures for stories.
+- A diagram that explains a concept and **does not reveal the answer** goes directly into the question (`img`) or into the hint.
+- A diagram from which the answer can be read directly goes **only into the explanation** (`explainImg`).
+- **An image in a question is only about that question.** Don't attach the general diagram of the whole topic to a specific list: it confuses.
+- Copy images to `trainer/img/` with the topic prefix and shrink to 1400 px (macOS: `sips -Z 1400 in.png --out trainer/img/x-name.png`; otherwise `magick in.png -resize 1400x1400\> out.png`).
 
-## 8. Техника
+## 8. Technical
 
-- Каждая большая тема (раздел, модуль, глава) — отдельный файл `trainer/quiz-data-<тема>.js`. Формат — [docs/FORMAT.md](docs/FORMAT.md).
-- У всех id в теме свой префикс, чтобы не пересекаться с другими темами.
-- Названия уроков (`title`) короткие, 1–3 слова: они показываются на маленьких карточках. Полное название — в `lesson`, оно совпадает с именем файла конспекта `notes/<lesson>.md`.
-- Перед сдачей прогоняем `validate.js`: у каждого вопроса есть урок и микротема, у каждого не-«вспомни» есть разбор и подсказка, все картинки существуют, строки таблиц одинаковой длины.
+- Each large topic (section, module, chapter) is a separate file `trainer/quiz-data-<topic>.js`. Format: [docs/FORMAT.md](docs/FORMAT.md).
+- All ids in a topic have their own prefix so they don't collide with other topics.
+- Lesson names (`title`) are short, 1–3 words: they are shown on small cards. The full name goes in `lesson`, and it matches the notes file name `notes/<lesson>.md`.
+- Before handing in, run `validate.js`: every question has a lesson and a microtopic, every non-"recall" has an explanation and a hint, all images exist, table rows have equal length.
 
-## 9. Источники
+## 9. Sources
 
-- Закрытые платформы (платные курсы, личные кабинеты) **не парсим автоматически** и ничего с них не скачиваем: пользовательские соглашения обычно это запрещают, и пользователя могут отключить. Страницы пользователь сохраняет сам: открыть урок, дождаться загрузки, прокрутить до конца, «Сохранить как → Веб-страница, полностью».
-- После сохранения проверяем, что внутри файла тот самый урок, текст дошёл до конца, а картинки скачались (`extract_html.py`).
-- Если в материале нашлась ошибка или противоречие, в вопросах используем верную версию и пишем об этом в отчёте.
+- Closed platforms (paid courses, personal accounts) are **not scraped automatically** and nothing is downloaded from them: user agreements usually forbid it, and the user may get banned. The user saves pages themselves: open the lesson, wait for it to load, scroll to the end, "Save As → Web Page, Complete".
+- After saving, check that the file contains the right lesson, the text goes all the way to the end, and the images were downloaded (`extract_html.py`).
+- If the material contains an error or contradiction, use the correct version in the questions and mention it in the report.
 
-## 10. Понятия, связи и шпаргалки (`trainer/study-<тема>.js`)
+## 10. Concepts, links and cheat sheets (`trainer/study-<topic>.js`)
 
-Кроме вопросов, у каждой темы есть файл учебных материалов. Из него тренажёр сам собирает шпаргалки, карту курса и флэшкарты. Формат — [docs/FORMAT.md](docs/FORMAT.md#шпаргалки-понятия-и-связи).
+Besides questions, each topic has a study materials file. From it the trainer itself builds cheat sheets, the course map and flashcards. Format: [docs/FORMAT.md](docs/FORMAT.md#cheat-sheets-concepts-and-links).
 
-**Понятия**
-- id понятия: `<id урока>.<латинское-слово>`, например `x-mem.curve`.
-- `term` — название точно как в материале (§2а). `def` — определение **дословно из материала**. Если оно очень длинное, берём главную фразу, но словами источника, не пересказом.
-- На урок 4–10 понятий: всё, что стоит выучить как карточку «термин ↔ определение». Каждый пункт списка отдельным понятием не делаем: список идёт в шпаргалку блоком `list`.
-- `sub` — существующая микротема из quiz-data, к которой относится понятие.
-- Никаких героев историй, кейсов, «в курсе / в уроке».
+**Concepts**
+- Concept id: `<lesson id>.<latin-word>`, for example `x-mem.curve`.
+- `term`: the name exactly as in the material (§2a). `def`: the definition **verbatim from the material**. If it is very long, take the main sentence, but in the source's words, not a retelling.
+- 4–10 concepts per lesson: everything worth learning as a "term ↔ definition" card. Don't make each list item a separate concept: the list goes into the cheat sheet as a `list` block.
+- `sub`: an existing microtopic from quiz-data that the concept belongs to.
+- No story characters, cases, "in the course / in the lesson".
 
-**Связи**
-- У каждого урока минимум одна связь с понятием **другого урока**, иначе карта распадается на островки. Хорошо бы 2–4.
-- `label` — короткий глагол или фраза из 1–3 слов: «часть», «состоит из», «следует за», «опирается на», «сравнивают с», «противоположность». Читается как «from — label → to»: проверь, что направление верное.
-- Связи только смысловые, из теории. Никаких «упоминается рядом».
-- Когда добавляется новый урок, проверь старые: у каких понятий появилась связь с новым.
+**Links**
+- Each lesson has at least one link to a concept of **another lesson**, otherwise the map falls apart into islands. 2–4 is good.
+- `label`: a short verb or phrase of 1–3 words: "part of", "consists of", "follows", "relies on", "compared with", "opposite of". Reads as "from — label → to": check that the direction is right.
+- Only meaningful links from the theory. No "mentioned nearby".
+- When a new lesson is added, check the old ones: which concepts now have a link to the new one.
 
-**Шпаргалки**
-- Цель — перечитать урок за 2 минуты перед тестом. Помещается на один экран ноутбука или на лист A4: обычно 3–5 блоков.
-- `gist` — 1–2 фразы: о чём урок и зачем это знать.
-- Первый блок — «Главные понятия» (ссылки на concepts). Дальше списки, этапы (`ordered: true`), формулы, одна сравнительная таблица, если в материале есть сравнение.
-- Не больше одной картинки, только информативная (§7).
-- Пункты списков — коротко, словами материала. Всё, что есть в шпаргалке, должно быть в источнике. Ничего от себя.
+**Cheat sheets**
+- The goal is to reread a lesson in 2 minutes before a test. It fits on one laptop screen or an A4 sheet: usually 3–5 blocks.
+- `gist`: 1–2 sentences on what the lesson is about and why it's worth knowing.
+- The first block is "Key concepts" (references to concepts). Then lists, stages (`ordered: true`), formulas, one comparison table if the material has a comparison.
+- No more than one image, informative only (§7).
+- List items are short, in the material's words. Everything in the cheat sheet must be in the source. Nothing of your own.
 
-## 11. Замечания пользователя
+## 11. User feedback
 
-Каждое замечание пользователя («этот вопрос тупой», «подсказка выдаёт ответ») — это правило на будущее. Допиши его в правила проекта и примени ко **всем** темам, а не только к той, о которой шла речь. Сначала собери все замечания, потом делай один проход.
+Every piece of user feedback ("this question is dumb", "the hint gives away the answer") is a rule for the future. Add it to the project rules and apply it to **all** topics, not just the one it was about. First collect all the feedback, then do a single pass.

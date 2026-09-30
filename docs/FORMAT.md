@@ -1,138 +1,140 @@
-# Формат файла вопросов
+# Question file format
 
-Одна большая тема (раздел, модуль, спринт) — один файл `trainer/quiz-data-<тема>.js`. Файл добавляет себя в общий список:
+Sample strings are in English; real content is written in the language of the material.
+
+One large topic (section, module, sprint) = one file `trainer/quiz-data-<topic>.js`. The file adds itself to the shared list:
 
 ```js
-// Вопросы: тема «Название темы».
+// Questions: topic «Topic name».
 (window.QUIZ_PARTS = window.QUIZ_PARTS || []).push({
-  group: { id: "g-bio", title: "Клетка" },                    // большая тема
-  topics: [                                                    // уроки темы, по порядку
-    { id: "b-cell", title: "Строение клетки", lesson: "Строение клетки" }, // title — 1–3 слова для карточки,
-    { id: "b-div",  title: "Деление", lesson: "Митоз и мейоз" }             // lesson — полное название (как у файла конспекта)
+  group: { id: "g-bio", title: "The Cell" },                   // large topic
+  topics: [                                                    // lessons of the topic, in order
+    { id: "b-cell", title: "Cell Structure", lesson: "Cell Structure" }, // title: 1–3 words for the card,
+    { id: "b-div",  title: "Division", lesson: "Mitosis and Meiosis" }    // lesson: full name (same as the notes file)
   ],
-  subs: { "b-cell-org": "Органоиды", "b-cell-mem": "Мембрана" }, // микротемы: 2–4 на урок
+  subs: { "b-cell-org": "Organelles", "b-cell-mem": "Membrane" }, // micro-topics: 2–4 per lesson
   questions: [ /* … */ ]
 });
 ```
 
-Подключение: строка `<script src="quiz-data-<тема>.js"></script>` в `trainer/index.html` после комментария `<!-- QUIZ-DATA -->` (скрипт `add_topic.js` делает это сам).
+Wiring: the line `<script src="quiz-data-<topic>.js"></script>` goes in `trainer/index.html` after the comment `<!-- QUIZ-DATA -->` (the `add_topic.js` script does this itself).
 
-У каждой темы свой **префикс** для всех id (`b-…` / `b12`), чтобы темы не пересекались.
+Each topic has its own **prefix** for all ids (`b-…` / `b12`) so topics do not collide.
 
-## Общие поля вопроса
+## Common question fields
 
 ```js
 { id: "b12", topic: "b-cell", sub: "b-cell-org", type: "mcq",
-  hint: { text: "наводка без ответа", img: "b-scheme.png", table: { head: [...], rows: [[...]] } }, // у всех, кроме recall
-  img: "b-scheme.png",          // или ["a.png","b.png"]: показывается в вопросе — только если НЕ раскрывает ответ
-  explainImg: "b-scheme.png",   // показывается в разборе после ответа
-  explainTable: { head: ["Понятие", "Суть"], rows: [["…", "…"]] },  // все строки той же длины, что head
-  q: "текст вопроса",
-  explanation: "разбор 3–5 предложений" }  // у всех, кроме recall
+  hint: { text: "a nudge without the answer", img: "b-scheme.png", table: { head: [...], rows: [[...]] } }, // on all types except recall
+  img: "b-scheme.png",          // or ["a.png","b.png"]: shown in the question — only if it does NOT give away the answer
+  explainImg: "b-scheme.png",   // shown in the explanation after answering
+  explainTable: { head: ["Concept", "Essence"], rows: [["…", "…"]] },  // every row the same length as head
+  q: "question text",
+  explanation: "explanation, 3–5 sentences" }  // on all types except recall
 ```
 
-Уровень задаётся типом:
-1. `match`, `mcq`, `truefalse` — простые;
+The level is set by the type:
+1. `match`, `mcq`, `truefalse` — simple;
 2. `sort`, `table`, `frame`, `order`;
-3. `cloze`, `list`, `recall` — свободный ответ.
+3. `cloze`, `list`, `recall` — free answer.
 
-## Поля по типам
+## Fields by type
 
 ```js
-// mcq — выбрать ответ. Несколько индексов = выбрать несколько (тогда в q: «Выбери все верные.»)
-{ type: "mcq", q: "Что такое органоид?", options: ["…", "…", "…", "…"], correct: [2] }
+// mcq — pick the answer. Several indexes = pick several (then add to q: "Select all that apply." — in Russian material «Выбери все верные.»)
+{ type: "mcq", q: "What is an organelle?", options: ["…", "…", "…", "…"], correct: [2] }
 
-// truefalse — верно / неверно
-{ type: "truefalse", q: "Утверждение…", answer: false }
+// truefalse — true / false
+{ type: "truefalse", q: "Statement…", answer: false }
 
-// match — соединить пары (2–5 пар). Левая часть может быть картинкой: [{ img: "b-x.png" }, "подпись"]
-{ type: "match", q: "Соедини понятие и определение", pairs: [["Термин A", "Определение A"], ["Термин B", "Определение B"]] }
+// match — connect pairs (2–5 pairs). The left side can be an image: [{ img: "b-x.png" }, "caption"]
+{ type: "match", q: "Match the term to its definition", pairs: [["Term A", "Definition A"], ["Term B", "Definition B"]] }
 
-// sort — разложить по группам (только теоретические признаки, не примеры)
-{ type: "sort", q: "Признак чего?", groups: { "Митоз": ["…", "…"], "Мейоз": ["…", "…"] } }
+// sort — sort into groups (theoretical features only, not examples)
+{ type: "sort", q: "A feature of which?", groups: { "Mitosis": ["…", "…"], "Meiosis": ["…", "…"] } }
 
-// order — расставить по порядку (items — в правильном порядке)
-{ type: "order", q: "Расставь фазы по порядку", items: ["Профаза", "Метафаза", "Анафаза", "Телофаза"] }
+// order — put in order (items are listed in the correct order)
+{ type: "order", q: "Put the phases in order", items: ["Prophase", "Metaphase", "Anaphase", "Telophase"] }
 
-// table — таблица с пропусками: blanks — клетки "строка-столбец" (столбец 0 — заголовки строк, его не пропускаем)
-{ type: "table", q: "Заполни пропуски в таблице сравнения", head: ["", "Митоз", "Мейоз"],
-  rows: [["Сколько делений", "Одно", "Два"], ["Дочерних клеток", "Две", "Четыре"]], blanks: ["0-2", "1-1"],
-  extra: ["Три"] }                        // необязательно: лишние фишки-обманки
+// table — table with blanks: blanks are "row-column" cells (column 0 holds row headers; never blank it)
+{ type: "table", q: "Fill in the blanks in the comparison table", head: ["", "Mitosis", "Meiosis"],
+  rows: [["Number of divisions", "One", "Two"], ["Daughter cells", "Two", "Four"]], blanks: ["0-2", "1-1"],
+  extra: ["Three"] }                      // optional: extra decoy chips
 
-// frame — пустая схема из материала: пользователь расставляет названия по местам. Раскладки:
-//   steps (шаги слева направо), funnel (воронка сверху вниз), nested (вложенные круги от широкого к узкому),
-//   grid (сетка, как канва: areas — CSS grid-template-areas, у слота area), tree (дерево: parent — индекс родителя, op — знак)
-{ type: "frame", layout: "steps", q: "Заполни схему…", slots: [{ label: "Шаг 1" }, { label: "Шаг 2", hint: "пояснение под слотом" }, { label: "Шаг 3" }] }
+// frame — an empty diagram from the material: the user places the labels in their slots. Layouts:
+//   steps (steps left to right), funnel (funnel top to bottom), nested (nested circles from widest to narrowest),
+//   grid (a grid, like a canvas: areas = CSS grid-template-areas, each slot has an area), tree (a tree: parent = index of the parent, op = operator sign)
+{ type: "frame", layout: "steps", q: "Fill in the diagram…", slots: [{ label: "Step 1" }, { label: "Step 2", hint: "note under the slot" }, { label: "Step 3" }] }
 { type: "frame", layout: "grid", areas: ["a b c", "d d e"], slots: [{ area: "a", label: "…" }, { area: "b", label: "…" }, …] }
-{ type: "frame", layout: "tree", slots: [{ label: "Выручка", parent: null }, { label: "Клиенты", parent: 0, op: "×" }, { label: "Средний чек", parent: 0, op: "×" }] }
+{ type: "frame", layout: "tree", slots: [{ label: "Revenue", parent: null }, { label: "Customers", parent: 0, op: "×" }, { label: "Average check", parent: 0, op: "×" }] }
 
-// cloze — вписать слово. В q ровно один «___». Первый ответ — канонический, остальные — варианты написания
-{ type: "cloze", q: "Энергетическая станция клетки — это ___.", answers: ["митохондрия", "митохондрии"] }
+// cloze — type in a word. q contains exactly one "___". The first answer is canonical, the rest are spelling variants
+{ type: "cloze", q: "The power station of the cell is the ___.", answers: ["mitochondrion", "mitochondria"] }
 
-// list — перечислить (проверяется самооценкой). keys — корни слов в нижнем регистре
-{ type: "list", q: "Назови 3 …", need: 3,
-  answers: [{ label: "Пункт 1", keys: ["корень1", "синоним"] }, { label: "Пункт 2", keys: ["корень2"] }, { label: "Пункт 3", keys: ["корень3"] }] }
+// list — list items (checked by self-assessment). keys are word roots in lowercase
+{ type: "list", q: "Name 3 …", need: 3,
+  answers: [{ label: "Item 1", keys: ["root1", "synonym"] }, { label: "Item 2", keys: ["root2"] }, { label: "Item 3", keys: ["root3"] }] }
 
-// recall — флэшкарта «вспомни сам». Без hint и explanation
-{ type: "recall", q: "Сформулируй определение X", back: "Эталонный ответ, полный и компактный" }
+// recall — a "recall it yourself" flashcard. No hint and no explanation
+{ type: "recall", q: "State the definition of X", back: "Reference answer, complete and compact" }
 ```
 
-## Мелочи
+## Small things
 
-- Кавычки внутри строк — «ёлочки», не `"`.
-- В `mcq` меняй позицию правильного ответа и следи, чтобы правильный вариант **не был заметно длиннее** остальных (скрипт `dumb_check.js` это ловит).
-- В `list` пункт с более узким корнем ставь раньше пункта, чей корень входит в него как подстрока (например «постпродаж» раньше «продаж»).
-- Картинки лежат в `trainer/img/` с префиксом темы.
+- Quotes inside strings are «guillemets», not `"`.
+- In `mcq`, vary the position of the correct answer and make sure the correct option is **not noticeably longer** than the others (the `dumb_check.js` script catches this).
+- In `list`, put an item with a narrower root before an item whose root is contained in it as a substring (e.g. «постпродаж» "post-sales" before «продаж» "sales").
+- Images live in `trainer/img/` with the topic prefix.
 
-## Шпаргалки, понятия и связи
+## Cheat sheets, concepts and links
 
-Каждой теме нужен второй файл `trainer/study-<тема>.js` (подключается до `study-links.js`). Из него тренажёр собирает шпаргалки уроков, флэшкарты и карту курса. Правила содержания — `RULES.md` §10.
+Each topic needs a second file `trainer/study-<topic>.js` (loaded before `study-links.js`). From it the trainer builds lesson cheat sheets, flashcards and the course map. Content rules: `RULES.md` §10.
 
 ```js
 (window.STUDY_PARTS = window.STUDY_PARTS || []).push({
-  group: "g-bio",                        // id темы из quiz-data-<тема>.js
-  concepts: [                            // понятия = флэшкарты = узлы карты
+  group: "g-bio",                        // topic id from quiz-data-<topic>.js
+  concepts: [                            // concepts = flashcards = map nodes
     { id: "b-cell.mito", topic: "b-cell", sub: "b-cell-org",
-      term: "Митохондрия", def: "…определение дословно из материала…",
-      formula: "…",                      // необязательно
-      img: "b-mito.png" }                // необязательно: схема из trainer/img
+      term: "Mitochondrion", def: "…definition verbatim from the material…",
+      formula: "…",                      // optional
+      img: "b-mito.png" }                // optional: a diagram from trainer/img
   ],
-  links: [                               // стрелки на карте: «from — label → to»
-    { from: "b-cell.mito", to: "b-cell.atp", label: "производит" }
+  links: [                               // arrows on the map: "from — label → to"
+    { from: "b-cell.mito", to: "b-cell.atp", label: "produces" }
   ],
-  cheats: {                              // шпаргалка на каждый урок, ключ — id урока
-    "b-cell": { gist: "Суть урока в 1–2 фразах.",
+  cheats: {                              // a cheat sheet for every lesson, key = lesson id
+    "b-cell": { gist: "The essence of the lesson in 1–2 sentences.",
       blocks: [
-        { title: "Главные понятия", concepts: ["b-cell.mito", "…"] },   // определения берутся из concepts
-        { title: "Этапы", list: ["шаг 1", "шаг 2"], ordered: true },
-        { title: "Формулы", formulas: [["Название", "формула"]] },
-        { title: "Сравнение", table: { head: ["", "A", "B"], rows: [["…", "…", "…"]] } },
-        { img: "b-scheme.png", caption: "подпись" }
+        { title: "Key concepts", concepts: ["b-cell.mito", "…"] },   // definitions are taken from concepts
+        { title: "Stages", list: ["step 1", "step 2"], ordered: true },
+        { title: "Formulas", formulas: [["Name", "formula"]] },
+        { title: "Comparison", table: { head: ["", "A", "B"], rows: [["…", "…", "…"]] } },
+        { img: "b-scheme.png", caption: "caption" }
       ] }
   }
 });
 ```
 
-Связи между понятиями **разных** тем — в `trainer/study-links.js`: `window.STUDY_LINKS = [ { from, to, label }, … ]`.
+Links between concepts of **different** topics go in `trainer/study-links.js`: `window.STUDY_LINKS = [ { from, to, label }, … ]`.
 
-## Файл-часть для `add_topic.js`
+## Part file for `add_topic.js`
 
-Новый урок удобнее всего собрать в одном файле-части (CommonJS) и вставить скриптом: он проверит пересечения id, поставит урок на место, создаст файлы новой темы и подключит их в `index.html`.
+A new lesson is easiest to assemble in a single part file (CommonJS) and insert with the script: it checks for id collisions, puts the lesson in its place, creates the files for a new topic and wires them into `index.html`.
 
 ```js
 module.exports = {
-  group: { id: "g-bio", title: "Клетка" },
-  slug: "bio",                           // только для НОВОЙ темы: quiz-data-bio.js + study-bio.js
-  topics: [{ id: "b-div", title: "Деление", lesson: "Митоз и мейоз", after: "b-cell" }],  // after — id предыдущего урока
-  subs: { "b-div-mit": "Митоз" },
-  questions: [ /* как выше */ ],
-  concepts: [ /* … */ ], links: [ /* внутри темы */ ], cheats: { "b-div": { gist, blocks } },
-  crossLinks: [ /* { from, to, label } с понятиями других тем → study-links.js */ ]
+  group: { id: "g-bio", title: "The Cell" },
+  slug: "bio",                           // only for a NEW topic: quiz-data-bio.js + study-bio.js
+  topics: [{ id: "b-div", title: "Division", lesson: "Mitosis and Meiosis", after: "b-cell" }],  // after = id of the previous lesson
+  subs: { "b-div-mit": "Mitosis" },
+  questions: [ /* as above */ ],
+  concepts: [ /* … */ ], links: [ /* within the topic */ ], cheats: { "b-div": { gist, blocks } },
+  crossLinks: [ /* { from, to, label } with concepts of other topics → study-links.js */ ]
 };
 ```
 
 ```bash
-node <скилл>/scripts/add_topic.js part.js --dry        # посмотреть, что изменится
-node <скилл>/scripts/add_topic.js part.js              # вставить новый урок
-node <скилл>/scripts/add_topic.js part.js --replace    # заменить переписанный урок (прежние id сохраняют прогресс)
+node <skill>/scripts/add_topic.js part.js --dry        # preview what will change
+node <skill>/scripts/add_topic.js part.js              # insert a new lesson
+node <skill>/scripts/add_topic.js part.js --replace    # replace a rewritten lesson (existing ids keep their progress)
 ```

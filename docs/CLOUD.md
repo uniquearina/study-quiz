@@ -1,23 +1,25 @@
-# Облачная копия (необязательно)
+# Cloud copy (optional)
 
-Тренажёр работает и без облака: двойной клик по `trainer/index.html`, прогресс в браузере. Облако нужно, если хочется заниматься и с телефона, и с компьютера с общим прогрессом.
+**English** | [Русский](CLOUD.ru.md)
 
-Схема: Cloudflare Pages отдаёт папку `trainer/`, Cloudflare Access закрывает сайт входом по коду на почту, функция `/api/progress` хранит прогресс в KV и сливает изменения с разных устройств (`trainer/merge.js`). Всё умещается в бесплатный тариф.
+The trainer works without the cloud: double-click `trainer/index.html`, progress stays in the browser. The cloud is for studying on both your phone and your computer with shared progress.
 
-> **Материалы курсов обычно нельзя публиковать.** Тренажёр живёт только на закрытом адресе. Основной адрес проекта Pages остаётся открытым, поэтому там лежит заглушка.
+How it works: Cloudflare Pages serves the `trainer/` folder, Cloudflare Access protects the site with an email code login, and the `/api/progress` function stores progress in KV and merges changes from different devices (`trainer/merge.js`). Everything fits in the free tier.
 
-## Настройка
+> **Course materials usually may not be published.** The trainer lives only at the protected address. The main address of the Pages project stays public, so a placeholder is served there.
 
-1. Скопируй `assets/cloud/` в папку проекта рядом с `trainer/` (получится `cloud/wrangler.toml`, `cloud/functions/`, `cloud/placeholder/`).
+## Setup
+
+1. Copy `assets/cloud/` into the project folder next to `trainer/` (you get `cloud/wrangler.toml`, `cloud/functions/`, `cloud/placeholder/`).
 2. `npx wrangler login`.
-3. Создай хранилище прогресса: `npx wrangler kv namespace create progress` и впиши его `id` в `cloud/wrangler.toml`. Там же задай `name` — имя проекта.
-4. Создай проект Pages и выложи заглушку на основной адрес:
+3. Create the progress store: `npx wrangler kv namespace create progress` and put its `id` into `cloud/wrangler.toml`. Set `name` — the project name — there too.
+4. Create the Pages project and deploy the placeholder to the main address:
    ```bash
-   cd cloud && npx wrangler pages project create <имя> --production-branch main
+   cd cloud && npx wrangler pages project create <name> --production-branch main
    npx wrangler pages deploy placeholder --branch main
    ```
-5. В панели Cloudflare: Workers & Pages → проект → Settings → **Enable access policy** (Preview deployments). Появится приложение Access на `*.<имя>.pages.dev`. В его политике оставь вход только для своей почты.
-6. В Zero Trust → Access → Applications открой это приложение и скопируй **Application Audience (AUD) Tag** в `AUD`, а имя команды (`<команда>.cloudflareaccess.com`) — в `TEAM` в `cloud/wrangler.toml`.
-7. Выложи тренажёр: из папки проекта `bash ~/.claude/skills/study-quiz/scripts/deploy.sh`. Скрипт выкладывает на ветку `app` (`https://app.<имя>.pages.dev`) и проверяет, что без входа адрес закрыт, а на основном адресе тренажёра нет.
+5. In the Cloudflare dashboard: Workers & Pages → project → Settings → **Enable access policy** (Preview deployments). An Access application for `*.<name>.pages.dev` appears. In its policy, allow only your own email.
+6. In Zero Trust → Access → Applications, open that application and copy the **Application Audience (AUD) Tag** into `AUD`, and the team name (`<team>.cloudflareaccess.com`) into `TEAM` in `cloud/wrangler.toml`.
+7. Deploy the trainer: from the project folder, `bash ~/.claude/skills/study-quiz/scripts/deploy.sh`. The script deploys to the `app` branch (`https://app.<name>.pages.dev`) and checks that the address is closed without login and that the trainer is not on the main address.
 
-После любых изменений в `trainer/` снова запусти `deploy.sh`. Прогресс синхронизируется сам (`trainer/sync.js`): после ответов, при возврате на вкладку и при запуске. При открытии файла двойным кликом синхронизации нет.
+After any change in `trainer/`, run `deploy.sh` again. Progress syncs by itself (`trainer/sync.js`): after answers, when you return to the tab and on start. When the file is opened by double-click, there is no sync.
