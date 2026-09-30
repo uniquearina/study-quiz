@@ -99,6 +99,7 @@ These rules were collected during real studying: each one came from a specific c
 - A diagram that explains a concept and **does not reveal the answer** goes directly into the question (`img`) or into the hint.
 - A diagram from which the answer can be read directly goes **only into the explanation** (`explainImg`).
 - **An image in a question is only about that question.** Don't attach the general diagram of the whole topic to a specific list: it confuses.
+- Labelled diagrams: mask the labels with numbers and ask to match numbers to names; the full diagram goes into the explanation (`scripts/crop_image.py crop --mask`, SKILL.md §2).
 - Copy images to `trainer/img/` with the topic prefix and shrink to 1400 px (macOS: `sips -Z 1400 in.png --out trainer/img/x-name.png`; otherwise `magick in.png -resize 1400x1400\> out.png`).
 
 ## 8. Technical

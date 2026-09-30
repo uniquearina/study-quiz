@@ -47,7 +47,7 @@ The question-writing rules were collected over a real course: each one came from
 git clone https://github.com/uniquearina/study-quiz ~/.claude/skills/study-quiz
 ```
 
-Requires Claude Code, Node.js and Python 3. For saved HTML pages: `pip3 install lxml`. For the automated tests: Google Chrome or Chromium.
+Requires Claude Code, Node.js and Python 3. For saved HTML pages: `pip3 install lxml`. For pictures from photos and PDFs: `pip3 install pillow pymupdf`. For the automated tests: Google Chrome or Chromium.
 
 ## Usage
 
@@ -87,6 +87,17 @@ Claude reads handwriting and joins several photos of one lecture into a single t
 - Claude doesn't guess what it can't read. It sends one list like "photo 3: 'retroactive' or 'reproductive'?" and asks you to retake only the bad photos.
 
 Diagrams and arrows in the margins make it into the trainer too, as tables, diagrams and "put in place" questions.
+
+### Pictures from textbooks
+
+Photos of textbook pages, posters and PDFs can have their pictures cut out and put into the quiz:
+
+- a labelled diagram (organ layers, plants, a map) becomes a "label the diagram" question: the labels are covered with numbers, and the full picture with labels is shown in the explanation;
+- a drawing that gives the answer away goes only into the explanation;
+- tables, formulas and text-only flowcharts are retyped instead, so you can fill them in as tables and diagrams;
+- duplicates (the same page shot twice) are counted once, and anything that isn't study material is skipped — Claude will ask about it.
+
+Shoot the page straight on; if a figure is small, take a separate close-up of it.
 
 ### If the material isn't split into topics
 
@@ -141,6 +152,7 @@ node    $S/dumb_check.js --list          # signs of bad questions
 python3 $S/terms.py                      # did every term from the notes make it into questions
 python3 $S/e2e.py                        # test: the whole question bank in headless Chrome
 python3 $S/e2e_study.py                  # test: Today, cheat sheets, flashcards, map
+python3 $S/crop_image.py grid|crop|pdf|dupes  # pictures from photos and PDFs → trainer/img/
 python3 $S/screens.py                    # screenshots
 node    $S/add_topic.js part.js          # insert a lesson; --replace to replace
 node    $S/remove_topic.js <lesson id>   # remove a lesson (to archive/removed/)

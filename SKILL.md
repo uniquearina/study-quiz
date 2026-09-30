@@ -19,6 +19,7 @@ Skill files (paths relative to the folder containing this SKILL.md; usually `~/.
 |---|---|
 | `extract_html.py` | text of saved HTML pages → `notes/*.md`, checks that the page was saved completely |
 | `sync.py [--lock]` | what changed in `notes/` compared to the trainer: NEW / CHANGED / REMOVED |
+| `crop_image.py grid / crop / pdf / dupes` | images from photos, scans and PDF → `trainer/img/`: coordinate grid, crop with labels masked by numbers, PDF page → image, duplicate photos |
 | `add_topic.js part.js [--replace] [--dry]` | insert a new lesson or replace a rewritten one |
 | `remove_topic.js <lesson id> [--dry]` | remove a lesson everywhere (everything removed goes to `archive/removed/`) |
 | `patch_questions.js patch.json` | fix question fields by id: `{ "id": { "field": value \| null } }` |
@@ -76,6 +77,14 @@ If a **list of lessons** was sent (a screenshot of the table of contents), check
 
 **Material arrives in parts** (first a few lectures, then one at a time): put new material into existing topics if it fits by meaning, otherwise create a new topic. Do not re-split or rename lessons already in the trainer: progress is tied to their ids. If a new lecture continues a previous one, it is a separate lesson, and add a reference to it in the previous lesson's cheat sheet and links (step 4.7). In the plan, mark what's new and what already exists.
 
+**Images from textbooks, posters, scans** (`$S/crop_image.py`, see its `--help`):
+1. Many photos — first `crop_image.py dupes sources/…`: the same page shot twice or at another resolution counts once, take the larger one. PDF page → image: `crop_image.py pdf file.pdf --page N --out /tmp/p.png`.
+2. Sort what is on the page (RULES.md §7). Not study material (clothes, selfies, a random screenshot) — skip it and ask the user whether it got in by mistake. A table, formulas, a flowchart made of text — **retype** them into `notes/` and later into `table` / `frame` / `order` questions; a picture of text can't be answered. Take as images only what can't be retold in text: drawings, anatomy, maps, charts, photos of objects.
+3. Coordinates, not guesses: `crop_image.py grid page.png --out /tmp/g.png`, look at the grid; for a small figure crop the grid around it and enlarge it (PIL, 2–3×) to read coordinates precisely.
+4. `crop_image.py crop page.png --box x0,y0,x1,y1 --out trainer/img/<prefix>-<name>.png`. **Look at the result every time** and re-crop until: no cut-off letters or a neighbouring text line at the edges, no publisher logos, page numbers or parts of the next figure, nothing needed is cut off. It usually takes 2–3 tries.
+5. A diagram with labels (parts of an organ, plants, map) → add `--mask x0,y0,x1,y1` for each label: the label is painted over and gets a number 1, 2, 3… in the order of `--mask`; the full version is saved next to it as `<name>-key.png`. Question: `match` with `img: "<name>.png"`, pairs `["1", "<label>"]…` (2–5 pairs; more labels — split into several questions by region), `explainImg: "<name>-key.png"`. Check that no label or a piece of it is left visible and the numbers don't cover the drawing.
+6. The script warns when the figure in the source is small (under ~400 px): it will be enlarged, but ask the user for a close-up photo of that figure.
+
 ## 3. What changed (for an existing trainer)
 
 ```bash
@@ -99,7 +108,7 @@ python3 $S/sync.py
    - comparisons and diagrams from the material — as `table` and `frame` types;
    - 4–10 concepts per lesson, a cheat sheet of 3–5 blocks, at least one link to a concept of another lesson.
 4. The lesson continues a topic already in the trainer (common when a course arrives one lecture a week) — same `group.id` and prefix; continue id numbers from the last one taken. New topic — new `group` (`id: "g-<slug>"`), a `slug` for files and a **new id prefix** (one or two Latin letters not taken in `trainer/quiz-data*.js`).
-5. Images: `sips -Z 1400 "<source>" --out "trainer/img/<prefix>-<name>.png"` (not macOS — `magick … -resize 1400x1400\>`).
+5. Images: `crop_image.py crop` (step 2, «Images from textbooks»); a ready image without cropping — `sips -Z 1400 "<source>" --out "trainer/img/<prefix>-<name>.png"` (not macOS — `magick … -resize 1400x1400\>`).
 6. Insert: `node $S/add_topic.js part.js --dry`, then without `--dry`.
 7. Check whether old lessons now have links to the new concepts — add them to `trainer/study-links.js`.
 
